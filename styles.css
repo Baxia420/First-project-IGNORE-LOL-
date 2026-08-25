@@ -120,6 +120,16 @@ body {
     border-color: var(--accent-pink);
 }
 
+#music-toggle.playing .music-icon {
+    display: inline-block;
+    animation: musicPulse 1.6s ease-in-out infinite;
+}
+
+@keyframes musicPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.22); }
+}
+
 /* --- Main Application Screen Container --- */
 #app-container {
     position: relative;
@@ -872,17 +882,13 @@ button, .primary-btn, .secondary-btn, .gift-btn, .back-home-btn, .next-page-btn 
     text-rendering: optimizeLegibility;
 }
 
-.reward-badge {
-    font-size: 1.6rem;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08));
-}
-
 .reward-title {
     font-family: var(--font-heading);
     font-size: 1.15rem;
     font-weight: 800;
     color: var(--primary-color);
     line-height: 1.25;
+    padding-top: 6px;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
 }

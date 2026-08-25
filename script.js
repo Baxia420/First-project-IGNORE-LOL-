@@ -16,7 +16,7 @@ const APP_CONFIG = {
     introLetter: {
         salutation: "My dearest, Cici",
         body: "Ever since we met on CMB {TIMER} ago, my life was never the same. My days now have laughter. My days have warmth and happiness. But most importantly, my days now have you. And I am grateful for that. I want to ask a question. A very important question. But before that, let's take a VERY short trip down memory lane...",
-        signOff: "Love always,\n[Your Name]",
+        signOff: "Love always,\nMahin",
         btnText: "Let's take a trip down memory lane ♡ →"
     },
 
@@ -138,43 +138,63 @@ const APP_CONFIG = {
        1. BACKGROUND MUSIC PLAYER (LOOPING <audio> ELEMENT)
        ========================================================================== */
     const bgMusic = document.getElementById('bg-music');
-    let musicEnabled = localStorage.getItem('music_enabled') !== 'false';
-    let musicStarted = false;
-
-    function updateMusicUI() {
-        const icon = document.querySelector('#music-toggle .music-icon');
-        const label = document.getElementById('music-text');
-        if (icon) icon.textContent = musicEnabled ? '🎵' : '🔇';
-        if (label) label.textContent = musicEnabled ? 'Music: ON' : 'Music: OFF';
-    }
+    let isMusicPlaying = false;
 
     function startMusic() {
-        if (!bgMusic || musicStarted) return;
-        musicStarted = true;
-        if (musicEnabled) {
-            bgMusic.play().catch(() => { /* autoplay blocked, will retry on next interaction */ });
+        if (!bgMusic) return;
+        bgMusic.volume = 0.6;
+        const playPromise = bgMusic.play();
+        if (playPromise !== undefined) {
+            playPromise
+                .then(() => {
+                    isMusicPlaying = true;
+                    updateMusicUI(true);
+                    localStorage.setItem('loml_music', 'on');
+                })
+                .catch((error) => {
+                    console.warn('Autoplay blocked or audio file missing:', error);
+                    isMusicPlaying = false;
+                    updateMusicUI(false);
+                });
         }
     }
 
     function toggleMusic() {
-        musicEnabled = !musicEnabled;
-        localStorage.setItem('music_enabled', musicEnabled ? 'true' : 'false');
-        updateMusicUI();
-        if (bgMusic) {
-            if (musicEnabled) {
-                bgMusic.play().catch(() => {});
-            } else {
-                bgMusic.pause();
-            }
+        if (!bgMusic) return;
+        if (bgMusic.paused) {
+            startMusic();
+        } else {
+            bgMusic.pause();
+            isMusicPlaying = false;
+            updateMusicUI(false);
+            localStorage.setItem('loml_music', 'off');
         }
     }
 
-    updateMusicUI();
+    function updateMusicUI(isPlaying) {
+        const toggleBtn = document.getElementById('music-toggle');
+        const icon = document.querySelector('#music-toggle .music-icon');
+        const toggleText = document.getElementById('music-text');
+        if (icon) icon.textContent = isPlaying ? '🎵' : '🔇';
+        if (toggleText) toggleText.textContent = isPlaying ? 'Music: ON' : 'Music: OFF';
+        if (toggleBtn) toggleBtn.classList.toggle('playing', isPlaying);
+    }
+
+    // Initial UI state
+    updateMusicUI(false);
 
     const musicToggleBtn = document.getElementById('music-toggle');
     if (musicToggleBtn) {
         musicToggleBtn.addEventListener('click', toggleMusic);
     }
+
+    // Global one-time gesture unlock fallback (covers browsers that block
+    // play() even from a click handler inside a touch-start chain)
+    document.addEventListener('pointerdown', function unlockAudio() {
+        if (localStorage.getItem('loml_music') !== 'off' && bgMusic && bgMusic.paused) {
+            startMusic();
+        }
+    }, { once: true });
 
     /* ==========================================================================
        2. OPTIMIZED ZERO-LAG CANVAS PARTICLE ENGINE (60 FPS + POOLING)
@@ -919,7 +939,6 @@ const APP_CONFIG = {
 
             card.innerHTML = `
                 <div class="coupon-reward">
-                    <span class="reward-badge">${coupon.badge || '🎟️'}</span>
                     <div class="reward-title">${coupon.title}</div>
                     <div class="reward-desc">${coupon.description}</div>
                     <div class="reward-uses">Uses: ${coupon.uses}</div>
