@@ -728,14 +728,15 @@ button, .primary-btn, .secondary-btn, .gift-btn, .back-home-btn, .next-page-btn 
 
 .polaroid-stamp {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     color: var(--primary-color);
     font-weight: bold;
     border-bottom: 1.5px dashed var(--primary-color);
     padding-bottom: 4px;
     margin-bottom: 12px;
+    letter-spacing: 0.5px;
 }
 
 .reshuffle-container {
@@ -871,35 +872,45 @@ button, .primary-btn, .secondary-btn, .gift-btn, .back-home-btn, .next-page-btn 
     text-align: center;
     background: linear-gradient(135deg, #fffef0 0%, #fff0f3 100%);
     z-index: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
 }
 
 .reward-badge {
-    font-size: 1.5rem;
+    font-size: 1.6rem;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.08));
 }
 
 .reward-title {
     font-family: var(--font-heading);
-    font-size: 1.1rem;
-    font-weight: bold;
+    font-size: 1.15rem;
+    font-weight: 800;
     color: var(--primary-color);
     line-height: 1.25;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
 }
 
 .reward-desc {
     font-family: var(--font-handwriting);
-    font-size: 1rem;
-    color: #333;
+    font-size: 1.05rem;
+    color: #2b2b2b;
     line-height: 1.35;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
 }
 
 .reward-uses {
     font-family: var(--font-heading);
     font-size: 0.85rem;
-    font-weight: bold;
-    color: var(--success-green);
-    background: rgba(87, 145, 94, 0.12);
-    padding: 3px 12px;
+    font-weight: 800;
+    color: #2e7d32;
+    background: rgba(46, 125, 50, 0.12);
+    padding: 4px 14px;
     border-radius: 20px;
+    letter-spacing: 0.3px;
+    -webkit-font-smoothing: antialiased;
 }
 
 .scratch-canvas {

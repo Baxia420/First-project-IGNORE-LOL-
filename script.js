@@ -272,7 +272,8 @@ const APP_CONFIG = {
             this.particles = [];
             this.particlePool = [];
             this.isMobile = window.innerWidth < 768;
-            this.maxAmbientParticles = this.isMobile ? 24 : 48;
+            // Increased floating particle count by 25% (Mobile: 30, Desktop: 60)
+            this.maxAmbientParticles = this.isMobile ? 30 : 60;
             this.mouse = { x: -1000, y: -1000, active: false };
             this.colors = ['#ff8da1', '#ff6b85', '#ffb6c1', '#AFCBFF', '#FFE4E1', '#FFD700', '#db4e4e'];
             this.isRunning = true;
@@ -280,7 +281,7 @@ const APP_CONFIG = {
             this.resize();
             window.addEventListener('resize', () => {
                 this.isMobile = window.innerWidth < 768;
-                this.maxAmbientParticles = this.isMobile ? 24 : 48;
+                this.maxAmbientParticles = this.isMobile ? 30 : 60;
                 this.resize();
             });
 
@@ -337,7 +338,7 @@ const APP_CONFIG = {
         }
 
         releaseParticleToPool(p) {
-            if (this.particlePool.length < 100) {
+            if (this.particlePool.length < 150) {
                 this.particlePool.push(p);
             }
         }
@@ -876,7 +877,6 @@ const APP_CONFIG = {
                     <div class="polaroid-back">
                         <div class="polaroid-stamp">
                             <span>${moment.badge || `Chapter #${globalIndex}`}</span>
-                            <span>📅 ${moment.date || 'Special Memory'}</span>
                         </div>
                         <p>${moment.story}</p>
                     </div>
@@ -955,7 +955,7 @@ const APP_CONFIG = {
     }
 
     /* ==========================================================================
-       9. SCREEN 7: INTERACTIVE HTML5 SCRATCH-OFF VOUCHERS
+       9. SCREEN 7: INTERACTIVE HTML5 SCRATCH-OFF VOUCHERS (HIGH-DPI SCALED)
        ========================================================================== */
     const scratchedCouponSet = new Set();
     let scratchCouponsInitialized = false;
@@ -995,13 +995,19 @@ const APP_CONFIG = {
         const canvas = card.querySelector('.scratch-canvas');
         if (!canvas) return;
 
-        const ctx = canvas.getContext('2d');
+        // High-DPI Canvas Scaling for Crisp Text & Graphics
+        const dpr = Math.min(window.devicePixelRatio || 1, 3);
         const rect = card.getBoundingClientRect();
         const width = rect.width || 300;
         const height = rect.height || 210;
 
-        canvas.width = width;
-        canvas.height = height;
+        canvas.width = Math.round(width * dpr);
+        canvas.height = Math.round(height * dpr);
+        canvas.style.width = width + 'px';
+        canvas.style.height = height + 'px';
+
+        const ctx = canvas.getContext('2d');
+        ctx.scale(dpr, dpr);
 
         // Pastel foil gradient
         const grad = ctx.createLinearGradient(0, 0, width, height);
@@ -1012,7 +1018,7 @@ const APP_CONFIG = {
         ctx.fillRect(0, 0, width, height);
 
         // Patterned sparkle stars
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
         for (let i = 0; i < 18; i++) {
             const sx = Math.random() * width;
             const sy = Math.random() * height;
@@ -1021,15 +1027,15 @@ const APP_CONFIG = {
             ctx.fill();
         }
 
-        // Decorative foil text
-        ctx.font = 'bold 15px "CustomFont", "Nunito", sans-serif';
+        // Crisp vector decorative foil text
+        ctx.font = 'bold 15px "CustomFont", "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
         ctx.fillStyle = 'white';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.35)';
         ctx.shadowBlur = 4;
         ctx.fillText('✨ SPECIAL VOUCHER ✨', width / 2, height / 2 - 12);
-        ctx.font = '12px "CustomFont", "Nunito", sans-serif';
+        ctx.font = '600 13px "CustomFont", "Nunito", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
         ctx.fillText('(Scratch to Uncover)', width / 2, height / 2 + 12);
         ctx.shadowBlur = 0;
 
@@ -1052,7 +1058,7 @@ const APP_CONFIG = {
             ctx.fill();
 
             strokeCount++;
-            if (strokeCount % 8 === 0) {
+            if (strokeCount % 6 === 0) {
                 checkClearance();
             }
         }
@@ -1061,9 +1067,9 @@ const APP_CONFIG = {
             if (isScratched) return;
 
             try {
-                const imgData = ctx.getImageData(0, 0, width, height);
+                const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                 const data = imgData.data;
-                const stride = 32; // check every 8th pixel
+                const stride = Math.max(16, Math.round(32 * dpr));
                 let clearedPixels = 0;
                 let totalSamples = 0;
 
@@ -1074,7 +1080,7 @@ const APP_CONFIG = {
                     }
                 }
 
-                const ratio = clearedPixels / totalSamples;
+                const ratio = clearedPixels / (totalSamples || 1);
 
                 if (ratio >= 0.45) {
                     isScratched = true;
