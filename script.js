@@ -1,6 +1,8 @@
 /**
  * ==========================================================================
- * ROMANTIC SINGLE-PAGE APPLICATION CONTROLLER & PARTICLE ENGINE
+ * ROMANTIC SINGLE-PAGE APPLICATION - PHASE 2 SCRIPT
+ * High-performance 60 FPS Canvas Particle Engine, Interactive Scratch Cards,
+ * 3D Polaroid Memory Flip Gallery, and Physics Wax Seal Controller.
  * ==========================================================================
  */
 
@@ -56,7 +58,7 @@
             }
         }
 
-        playTone(freq, type = 'sine', duration = 0.3, volume = 0.1) {
+        playTone(freq, type = 'sine', duration = 0.25, volume = 0.09) {
             if (!this.enabled) return;
             try {
                 this.initContext();
@@ -81,27 +83,33 @@
             }
         }
 
-        playChime(notes = [523.25, 659.25, 783.99, 1046.50], delay = 0.08) {
+        playChime(notes = [523.25, 659.25, 783.99, 1046.50], delay = 0.07) {
             if (!this.enabled) return;
             this.initContext();
             notes.forEach((note, index) => {
                 setTimeout(() => {
-                    this.playTone(note, 'triangle', 0.4, 0.12);
+                    this.playTone(note, 'triangle', 0.35, 0.1);
                 }, index * (delay * 1000));
             });
+        }
+
+        playSealBreak() {
+            if (!this.enabled) return;
+            this.playTone(480, 'sine', 0.15, 0.12);
+            setTimeout(() => this.playChime([659.25, 880.00, 1046.50], 0.06), 80);
         }
 
         playMagic() {
             if (!this.enabled) return;
             const arpeggio = [523.25, 587.33, 659.25, 783.99, 880.00, 1046.50, 1318.51];
-            this.playChime(arpeggio, 0.06);
+            this.playChime(arpeggio, 0.05);
         }
     }
 
     const sound = new SoundEngine();
 
     /* ==========================================================================
-       2. INTERACTIVE CANVAS PARTICLE ENGINE (60 FPS + MOUSE PHYSICS)
+       2. OPTIMIZED ZERO-LAG CANVAS PARTICLE ENGINE (60 FPS + POOLING)
        ========================================================================== */
     class ParticleEngine {
         constructor() {
@@ -109,19 +117,26 @@
             if (!this.canvas) return;
             this.ctx = this.canvas.getContext('2d');
             this.particles = [];
-            this.maxAmbientParticles = 38;
+            this.particlePool = [];
+            this.isMobile = window.innerWidth < 768;
+            this.maxAmbientParticles = this.isMobile ? 24 : 48;
             this.mouse = { x: -1000, y: -1000, active: false };
             this.colors = ['#ff8da1', '#ff6b85', '#ffb6c1', '#AFCBFF', '#FFE4E1', '#FFD700', '#db4e4e'];
+            this.isRunning = true;
 
             this.resize();
-            window.addEventListener('resize', () => this.resize());
+            window.addEventListener('resize', () => {
+                this.isMobile = window.innerWidth < 768;
+                this.maxAmbientParticles = this.isMobile ? 24 : 48;
+                this.resize();
+            });
 
             // Pointer event listeners
             window.addEventListener('mousemove', (e) => {
                 this.mouse.x = e.clientX;
                 this.mouse.y = e.clientY;
                 this.mouse.active = true;
-            });
+            }, { passive: true });
 
             window.addEventListener('mouseleave', () => {
                 this.mouse.active = false;
@@ -141,9 +156,17 @@
                 this.mouse.active = false;
             });
 
+            // Visibility optimization (sleep loop when tab hidden)
+            document.addEventListener('visibilitychange', () => {
+                this.isRunning = !document.hidden;
+                if (this.isRunning) {
+                    requestAnimationFrame(this.animate);
+                }
+            });
+
             // Populate initial ambient particles
             for (let i = 0; i < this.maxAmbientParticles; i++) {
-                this.particles.push(this.createAmbientParticle(true));
+                this.particles.push(this.spawnAmbientParticle(true));
             }
 
             this.animate = this.animate.bind(this);
@@ -151,7 +174,7 @@
         }
 
         resize() {
-            const dpr = window.devicePixelRatio || 1;
+            const dpr = Math.min(window.devicePixelRatio || 1, 2); // Cap at 2x DPR to save mobile GPU
             this.width = window.innerWidth;
             this.height = window.innerHeight;
             this.canvas.width = this.width * dpr;
@@ -159,58 +182,67 @@
             this.ctx.scale(dpr, dpr);
         }
 
-        createAmbientParticle(randomY = false) {
+        getParticleFromPool() {
+            return this.particlePool.length > 0 ? this.particlePool.pop() : {};
+        }
+
+        releaseParticleToPool(p) {
+            if (this.particlePool.length < 100) {
+                this.particlePool.push(p);
+            }
+        }
+
+        spawnAmbientParticle(randomY = false) {
+            const p = this.getParticleFromPool();
             const isHeart = Math.random() > 0.35;
-            return {
-                type: isHeart ? 'heart' : 'sparkle',
-                x: Math.random() * this.width,
-                y: randomY ? Math.random() * this.height : this.height + Math.random() * 50,
-                size: isHeart ? Math.random() * 12 + 8 : Math.random() * 5 + 3,
-                speedY: -(Math.random() * 0.8 + 0.5),
-                speedX: 0,
-                baseSpeedX: (Math.random() - 0.5) * 0.4,
-                angle: Math.random() * Math.PI * 2,
-                angleSpeed: Math.random() * 0.02 + 0.01,
-                oscillationAmp: Math.random() * 1.2 + 0.4,
-                color: this.colors[Math.floor(Math.random() * this.colors.length)],
-                alpha: Math.random() * 0.5 + 0.3,
-                life: 1,
-                isBurst: false
-            };
+            p.type = isHeart ? 'heart' : 'sparkle';
+            p.x = Math.random() * this.width;
+            p.y = randomY ? Math.random() * this.height : this.height + Math.random() * 40;
+            p.size = isHeart ? Math.random() * 10 + 7 : Math.random() * 4 + 2.5;
+            p.speedY = -(Math.random() * 0.7 + 0.4);
+            p.speedX = 0;
+            p.baseSpeedX = (Math.random() - 0.5) * 0.3;
+            p.angle = Math.random() * Math.PI * 2;
+            p.angleSpeed = Math.random() * 0.02 + 0.008;
+            p.oscillationAmp = Math.random() * 1.0 + 0.3;
+            p.color = this.colors[Math.floor(Math.random() * this.colors.length)];
+            p.alpha = Math.random() * 0.45 + 0.25;
+            p.isBurst = false;
+            return p;
         }
 
-        createBurstParticle(x, y, type = 'confetti') {
+        spawnBurstParticle(x, y, type = 'confetti') {
+            const p = this.getParticleFromPool();
             const angle = Math.random() * Math.PI * 2;
-            const speed = Math.random() * 6 + 2;
-            return {
-                type: type,
-                x: x,
-                y: y,
-                size: type === 'heart' ? Math.random() * 14 + 10 : Math.random() * 6 + 3,
-                speedX: Math.cos(angle) * speed,
-                speedY: Math.sin(angle) * speed - 2,
-                gravity: 0.12,
-                friction: 0.96,
-                rotation: Math.random() * 360,
-                rotationSpeed: (Math.random() - 0.5) * 10,
-                color: this.colors[Math.floor(Math.random() * this.colors.length)],
-                alpha: 1,
-                life: 1,
-                decay: Math.random() * 0.02 + 0.015,
-                isBurst: true
-            };
+            const speed = Math.random() * 5.5 + 2;
+            p.type = type;
+            p.x = x;
+            p.y = y;
+            p.size = type === 'heart' ? Math.random() * 12 + 8 : Math.random() * 5 + 3;
+            p.speedX = Math.cos(angle) * speed;
+            p.speedY = Math.sin(angle) * speed - 2.2;
+            p.gravity = 0.11;
+            p.friction = 0.95;
+            p.rotation = Math.random() * 360;
+            p.rotationSpeed = (Math.random() - 0.5) * 8;
+            p.color = this.colors[Math.floor(Math.random() * this.colors.length)];
+            p.alpha = 1;
+            p.decay = Math.random() * 0.02 + 0.016;
+            p.isBurst = true;
+            return p;
         }
 
-        burst(x, y, count = 30, type = 'mixed') {
+        burst(x, y, count = 28, type = 'mixed') {
             const targetX = x !== undefined ? x : this.width / 2;
             const targetY = y !== undefined ? y : this.height / 2;
+            const burstCount = this.isMobile ? Math.min(count, 22) : count;
 
-            for (let i = 0; i < count; i++) {
+            for (let i = 0; i < burstCount; i++) {
                 let pType = type;
                 if (type === 'mixed') {
                     pType = Math.random() > 0.5 ? 'heart' : 'sparkle';
                 }
-                this.particles.push(this.createBurstParticle(targetX, targetY, pType));
+                this.particles.push(this.spawnBurstParticle(targetX, targetY, pType));
             }
         }
 
@@ -220,24 +252,12 @@
             if (rotation) this.ctx.rotate((rotation * Math.PI) / 180);
             this.ctx.globalAlpha = Math.max(0, alpha);
             this.ctx.fillStyle = color;
-            this.ctx.shadowBlur = 10;
-            this.ctx.shadowColor = color;
 
             this.ctx.beginPath();
             const topCurveHeight = size * 0.3;
             this.ctx.moveTo(0, topCurveHeight);
-            // Top left curve
-            this.ctx.bezierCurveTo(
-                -size / 2, -topCurveHeight,
-                -size, size / 3,
-                0, size
-            );
-            // Top right curve
-            this.ctx.bezierCurveTo(
-                size, size / 3,
-                size / 2, -topCurveHeight,
-                0, topCurveHeight
-            );
+            this.ctx.bezierCurveTo(-size / 2, -topCurveHeight, -size, size / 3, 0, size);
+            this.ctx.bezierCurveTo(size, size / 3, size / 2, -topCurveHeight, 0, topCurveHeight);
             this.ctx.closePath();
             this.ctx.fill();
             this.ctx.restore();
@@ -249,8 +269,6 @@
             if (rotation) this.ctx.rotate((rotation * Math.PI) / 180);
             this.ctx.globalAlpha = Math.max(0, alpha);
             this.ctx.fillStyle = color;
-            this.ctx.shadowBlur = 12;
-            this.ctx.shadowColor = color;
 
             this.ctx.beginPath();
             for (let i = 0; i < 4; i++) {
@@ -276,9 +294,12 @@
         }
 
         animate() {
+            if (!this.isRunning) return;
+
             this.ctx.clearRect(0, 0, this.width, this.height);
 
-            const mouseRadius = 120;
+            const mouseRadius = 110;
+            const mouseRadiusSq = mouseRadius * mouseRadius;
 
             for (let i = this.particles.length - 1; i >= 0; i--) {
                 const p = this.particles[i];
@@ -302,6 +323,7 @@
                     }
 
                     if (p.alpha <= 0 || p.y > this.height + 50) {
+                        this.releaseParticleToPool(p);
                         this.particles.splice(i, 1);
                     }
                 } else {
@@ -309,18 +331,19 @@
                     p.angle += p.angleSpeed;
                     p.x += Math.sin(p.angle) * p.oscillationAmp + p.baseSpeedX + p.speedX;
                     p.y += p.speedY;
-                    p.speedX *= 0.92; // decay push speed
+                    p.speedX *= 0.91; // decay repulsion speed
 
-                    // Mouse repulsion force
+                    // Optimized mouse repulsion (squared distance check eliminates Math.sqrt on every frame)
                     if (this.mouse.active) {
                         const dx = p.x - this.mouse.x;
                         const dy = p.y - this.mouse.y;
-                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        const distSq = dx * dx + dy * dy;
 
-                        if (dist < mouseRadius && dist > 0) {
-                            const force = (1 - dist / mouseRadius) * 2.5;
+                        if (distSq < mouseRadiusSq && distSq > 0) {
+                            const dist = Math.sqrt(distSq);
+                            const force = (1 - dist / mouseRadius) * 2.2;
                             p.speedX += (dx / dist) * force;
-                            p.y += (dy / dist) * force * 0.5;
+                            p.y += (dy / dist) * force * 0.4;
                         }
                     }
 
@@ -330,17 +353,18 @@
                         this.drawSparkle(p.x, p.y, p.size, p.color, p.alpha);
                     }
 
-                    // Recycle particle if off screen
-                    if (p.y < -30) {
-                        this.particles[i] = this.createAmbientParticle(false);
+                    // Recycle particle if it floats off the top
+                    if (p.y < -25) {
+                        this.releaseParticleToPool(p);
+                        this.particles[i] = this.spawnAmbientParticle(false);
                     }
                 }
             }
 
-            // Maintain ambient particle pool
+            // Keep ambient pool filled
             const ambientCount = this.particles.filter(p => !p.isBurst).length;
             if (ambientCount < this.maxAmbientParticles) {
-                this.particles.push(this.createAmbientParticle(false));
+                this.particles.push(this.spawnAmbientParticle(false));
             }
 
             requestAnimationFrame(this.animate);
@@ -395,23 +419,21 @@
             }
         }
 
-        // Screen-specific on-enter hooks
         onScreenEnter(screenId);
     }
 
     function onScreenEnter(screenId) {
-        sound.playChime([587.33, 659.25, 783.99], 0.07);
+        sound.playChime([587.33, 659.25, 783.99], 0.06);
 
         if (screenId === 'screen-yay') {
-            particleEngine.burst(window.innerWidth / 2, window.innerHeight / 2, 50, 'mixed');
+            particleEngine.burst(window.innerWidth / 2, window.innerHeight / 2, 45, 'mixed');
         } else if (screenId === 'screen-moments') {
-            initMoments();
+            initPolaroidMoments();
         } else if (screenId === 'screen-coupons') {
-            initCoupons();
+            initScratchCoupons();
         }
     }
 
-    // Handle browser hash navigation & back/forward buttons
     function handleHashChange() {
         const hash = window.location.hash.replace('#', '').trim();
         if (hash && SCREENS[hash]) {
@@ -425,59 +447,79 @@
     window.addEventListener('hashchange', handleHashChange);
 
     /* ==========================================================================
-       4. SCREEN 1: INTRO & ENVELOPE LOGIC
+       4. SCREEN 1: ANIMATED WAX SEAL ENVELOPE CONTROLLER
        ========================================================================== */
     const startDate = new Date("January 10, 2026 22:25:00").getTime();
     let timerInterval = null;
+    let envelopeOpened = false;
 
     function updateTimer() {
-        const timerElement = document.getElementById("timer");
-        if (!timerElement) return;
+        const timer1 = document.getElementById("timer");
+        const timer2 = document.getElementById("timer-expanded");
 
         const now = new Date().getTime();
         const distance = now - startDate;
 
-        if (distance < 0) {
-            timerElement.textContent = "a little while";
-            return;
+        let timeStr = "a little while";
+        if (distance >= 0) {
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            timeStr = `${days}d ${hours}h ${minutes}m ${seconds}s`;
         }
 
-        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-        timerElement.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+        if (timer1) timer1.textContent = timeStr;
+        if (timer2) timer2.textContent = timeStr;
     }
 
-    function openEnvelope() {
-        const envContainer = document.getElementById('envelope-container');
+    function handleWaxSealBreak() {
+        if (envelopeOpened) return;
+        envelopeOpened = true;
+
+        const envelope = document.getElementById('wax-envelope');
+        const waxSeal = document.getElementById('wax-seal');
+        const prompt = document.getElementById('envelope-prompt');
         const messageContent = document.getElementById('message-content');
         const proceedBtn = document.getElementById('intro-proceed-btn');
 
-        if (envContainer && messageContent && proceedBtn) {
-            const rect = envContainer.getBoundingClientRect();
-            particleEngine.burst(rect.left + rect.width / 2, rect.top + rect.height / 2, 40, 'sparkle');
-            sound.playMagic();
+        if (envelope && waxSeal) {
+            const rect = waxSeal.getBoundingClientRect();
+            particleEngine.burst(rect.left + rect.width / 2, rect.top + rect.height / 2, 35, 'sparkle');
+            sound.playSealBreak();
 
-            envContainer.style.display = 'none';
-            messageContent.style.display = 'flex';
-            proceedBtn.style.display = 'inline-block';
+            envelope.classList.add('open');
+            if (prompt) prompt.style.display = 'none';
 
             updateTimer();
             if (!timerInterval) {
                 timerInterval = setInterval(updateTimer, 1000);
             }
+
+            // Smoothly reveal expanded full letter view & proceed button
+            setTimeout(() => {
+                if (messageContent) {
+                    messageContent.style.display = 'flex';
+                    messageContent.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+                if (proceedBtn) {
+                    proceedBtn.style.display = 'inline-block';
+                }
+            }, 800);
         }
     }
 
-    const envelopeContainer = document.getElementById('envelope-container');
-    if (envelopeContainer) {
-        envelopeContainer.addEventListener('click', openEnvelope);
-        envelopeContainer.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
+    const waxSeal = document.getElementById('wax-seal');
+    const waxEnvelope = document.getElementById('wax-envelope');
+    if (waxSeal) waxSeal.addEventListener('click', handleWaxSealBreak);
+    if (waxEnvelope) {
+        waxEnvelope.addEventListener('click', (e) => {
+            if (!envelopeOpened) handleWaxSealBreak();
+        });
+        waxEnvelope.addEventListener('keydown', (e) => {
+            if ((e.key === 'Enter' || e.key === ' ') && !envelopeOpened) {
                 e.preventDefault();
-                openEnvelope();
+                handleWaxSealBreak();
             }
         });
     }
@@ -518,7 +560,7 @@
 
     if (noBtn) {
         noBtn.addEventListener('click', () => {
-            sound.playTone(330, 'sawtooth', 0.2, 0.08); // playful boop
+            sound.playTone(330, 'sawtooth', 0.2, 0.08);
 
             if (noMessageIndex >= noMessages.length) {
                 goToScreen('screen-no-choice');
@@ -531,7 +573,7 @@
                 togepiGif.src = sadGifs[noMessageIndex % sadGifs.length];
             }
 
-            yesButtonScale += 0.28;
+            yesButtonScale += 0.25;
             if (yesBtn) {
                 yesBtn.style.transform = `scale(${yesButtonScale})`;
             }
@@ -544,7 +586,7 @@
         sound.playMagic();
         const clientX = e ? e.clientX : window.innerWidth / 2;
         const clientY = e ? e.clientY : window.innerHeight / 2;
-        particleEngine.burst(clientX, clientY, 60, 'mixed');
+        particleEngine.burst(clientX, clientY, 50, 'mixed');
         goToScreen('screen-yay');
     }
 
@@ -569,7 +611,7 @@
     }
 
     /* ==========================================================================
-       7. SCREEN 6: MYSTERY MOMENTS (3D BOX GAME)
+       7. SCREEN 6: 3D POLAROID MEMORY FLIP GALLERY
        ========================================================================== */
     const allMemories = [
         "Our first conversation and laughing together all evening.",
@@ -582,6 +624,8 @@
         "Cooking together and making a huge mess in the kitchen.",
         "Every quiet moment spent together just enjoying each other's company."
     ];
+
+    const polaroidIcons = ['🌸', '✨', '☕', '🌟', '🎶', '💌', '🧸', '🍰', '🎈'];
 
     let shuffledMoments = [];
     let momentIndex = 0;
@@ -597,7 +641,7 @@
         return copy;
     }
 
-    function initMoments() {
+    function initPolaroidMoments() {
         if (momentsInitialized) return;
         momentsInitialized = true;
 
@@ -606,82 +650,99 @@
         reshufflesLeft = Math.ceil(allMemories.length / 3) - 1;
 
         const counter = document.getElementById('counter');
-        if (counter) counter.innerText = `Reshuffles left: ${reshufflesLeft}`;
+        if (counter) counter.innerText = `Shuffles left: ${reshufflesLeft}`;
 
-        renderBoxes();
+        renderPolaroidCards();
     }
 
-    function renderBoxes() {
-        const grid = document.getElementById('boxes-grid');
+    function renderPolaroidCards() {
+        const grid = document.getElementById('polaroid-grid');
         if (!grid) return;
         grid.innerHTML = '';
 
         const currentSet = shuffledMoments.slice(momentIndex, momentIndex + 3);
         momentIndex += 3;
 
-        currentSet.forEach((memory) => {
-            const wrapper = document.createElement('div');
-            wrapper.className = 'box-wrapper';
-            wrapper.setAttribute('role', 'button');
-            wrapper.setAttribute('tabindex', '0');
-            wrapper.setAttribute('aria-label', 'Open mystery gift box');
+        currentSet.forEach((memory, idx) => {
+            const globalIndex = momentIndex - 3 + idx + 1;
+            const randomRotation = (Math.random() * 4 - 2).toFixed(1); // -2deg to +2deg
+            const randomIcon = polaroidIcons[(globalIndex - 1) % polaroidIcons.length];
 
-            wrapper.innerHTML = `
-                <div class="box-lid"></div>
-                <div class="box-message">${memory}</div>
-                <div class="box-body">
-                    <span style="font-size: 3rem; color: white;">?</span>
+            const card = document.createElement('div');
+            card.className = 'polaroid-card';
+            card.style.transform = `rotate(${randomRotation}deg)`;
+            card.setAttribute('role', 'button');
+            card.setAttribute('tabindex', '0');
+            card.setAttribute('aria-label', `Polaroid photo ${globalIndex}: Tap to flip`);
+
+            card.innerHTML = `
+                <div class="polaroid-inner">
+                    <div class="polaroid-front">
+                        <div class="washi-tape"></div>
+                        <div class="polaroid-photo-frame">
+                            <div class="polaroid-emoji">${randomIcon}</div>
+                            <span class="polaroid-tap-hint">Tap to Flip ♡</span>
+                        </div>
+                        <div class="polaroid-caption">Memory #${globalIndex}</div>
+                    </div>
+                    <div class="polaroid-back">
+                        <div class="polaroid-stamp">
+                            <span>Chapter #${globalIndex}</span>
+                            <span>♡ Secret Note</span>
+                        </div>
+                        <p>${memory}</p>
+                    </div>
                 </div>
             `;
 
-            const toggleBox = (e) => {
-                const isOpen = wrapper.classList.toggle('open');
-                if (isOpen) {
-                    sound.playChime([659.25, 880.00], 0.08);
-                    const rect = wrapper.getBoundingClientRect();
-                    particleEngine.burst(rect.left + rect.width / 2, rect.top + rect.height / 2, 20, 'sparkle');
+            const toggleFlip = () => {
+                const isFlipped = card.classList.toggle('flipped');
+                if (isFlipped) {
+                    sound.playChime([659.25, 880.00], 0.07);
+                    const rect = card.getBoundingClientRect();
+                    particleEngine.burst(rect.left + rect.width / 2, rect.top + rect.height / 2, 18, 'sparkle');
                 }
             };
 
-            wrapper.onclick = toggleBox;
-            wrapper.onkeydown = (e) => {
+            card.onclick = toggleFlip;
+            card.onkeydown = (e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
-                    toggleBox(e);
+                    toggleFlip();
                 }
             };
 
-            grid.appendChild(wrapper);
+            grid.appendChild(card);
         });
     }
 
-    function handleReshuffle() {
-        const grid = document.getElementById('boxes-grid');
+    function handlePolaroidReshuffle() {
+        const grid = document.getElementById('polaroid-grid');
         const counter = document.getElementById('counter');
         const reshuffleBtn = document.getElementById('reshuffle-btn');
         if (!grid) return;
 
-        sound.playChime([440.00, 554.37, 659.25], 0.06);
+        sound.playChime([440.00, 554.37, 659.25], 0.05);
 
         if (momentIndex >= shuffledMoments.length) {
             if (reshuffleBtn) reshuffleBtn.disabled = true;
-            if (counter) counter.innerText = "Reshuffles left: 0";
+            if (counter) counter.innerText = "Shuffles left: 0";
 
-            grid.style.animation = "boxFadeOut 0.8s forwards";
+            grid.style.animation = "boxFadeOut 0.6s forwards";
             setTimeout(() => {
-                grid.innerHTML = '<div class="final-message">That is all the moments I could think of for now. Do not worry, we will be making more. ♡</div>';
-                grid.style.animation = "fadeIn 0.8s forwards";
-            }, 800);
+                grid.innerHTML = '<div class="final-letter-box" style="margin: 20px auto;"><p>✨ You have explored all the memories! More unforgettable chapters await ahead. ♡</p></div>';
+                grid.style.animation = "fadeIn 0.6s forwards";
+            }, 600);
             return;
         }
 
         reshufflesLeft--;
-        if (counter) counter.innerText = `Reshuffles left: ${reshufflesLeft}`;
-        renderBoxes();
+        if (counter) counter.innerText = `Shuffles left: ${reshufflesLeft}`;
+        renderPolaroidCards();
     }
 
     const reshuffleBtn = document.getElementById('reshuffle-btn');
-    if (reshuffleBtn) reshuffleBtn.addEventListener('click', handleReshuffle);
+    if (reshuffleBtn) reshuffleBtn.addEventListener('click', handlePolaroidReshuffle);
 
     const momentsNextBtn = document.getElementById('moments-next-btn');
     if (momentsNextBtn) {
@@ -691,107 +752,213 @@
     }
 
     /* ==========================================================================
-       8. SCREEN 7: GIFT COUPONS LOGIC
+       8. SCREEN 7: INTERACTIVE HTML5 SCRATCH-OFF VOUCHERS
        ========================================================================== */
     const couponData = [
         {
             title: "\"Get Out of an Argument\" Coupon",
             description: "Can be used to immediately end a minor disagreement and move on without further discussion.",
-            uses: "2"
+            uses: "2",
+            badge: "🕊️"
         },
         {
             title: "\"Hugs Hugs Hugs\" Coupon",
             description: "A hug, for you, anytime, anywhere, any moment.",
-            uses: "Unlimited"
+            uses: "Unlimited",
+            badge: "🤗"
         },
         {
             title: "\"Ask me anything\" Coupon",
             description: "You get to ask me a question, ANY QUESTION. I will have to answer completely honestly.",
-            uses: "2"
+            uses: "2",
+            badge: "💬"
         },
         {
             title: "\"Can we eat?\" Coupon",
             description: "We eat whatever you feel like eating, wherever it is, and whatever the price. No objections or vetoes allowed!",
-            uses: "2"
+            uses: "2",
+            badge: "🍣"
         },
         {
             title: "\"Get out of jail\" Coupon",
-            description: "Made me angry/upset for whatever reason? Use this voucher to instantly make me okay again.<br><br><strong>NOTE:</strong> Does not cover high-level crimes against my feelings. Silly mistakes only!",
-            uses: "1"
+            description: "Made me angry/upset for whatever reason? Use this voucher to instantly make me okay again.<br><br><strong>NOTE:</strong> Silly mistakes only!",
+            uses: "1",
+            badge: "🗝️"
         }
     ];
 
-    const clickedCouponIndices = new Set();
-    let couponsInitialized = false;
+    const scratchedCouponSet = new Set();
+    let scratchCouponsInitialized = false;
 
-    function initCoupons() {
-        if (couponsInitialized) return;
-        couponsInitialized = true;
+    function initScratchCoupons() {
+        if (scratchCouponsInitialized) return;
+        scratchCouponsInitialized = true;
 
-        const grid = document.getElementById('coupons-grid');
+        const grid = document.getElementById('scratch-coupons-grid');
         const nextBtn = document.getElementById('coupons-next-btn');
         if (!grid) return;
 
         couponData.forEach((coupon, index) => {
             const card = document.createElement('div');
-            card.className = 'coupon-card';
-            card.setAttribute('role', 'button');
-            card.setAttribute('tabindex', '0');
-            card.setAttribute('aria-label', `View ${coupon.title}`);
+            card.className = 'coupon-scratch-card';
+            card.id = `scratch-card-${index}`;
 
             card.innerHTML = `
-                <div class="coupon-tooltip">
-                    <span class="tooltip-title">${coupon.title}</span>
-                    <div class="tooltip-desc">${coupon.description}</div>
-                    <div class="tooltip-uses">Uses: ${coupon.uses}</div>
+                <div class="coupon-reward">
+                    <span class="reward-badge">${coupon.badge}</span>
+                    <div class="reward-title">${coupon.title}</div>
+                    <div class="reward-desc">${coupon.description}</div>
+                    <div class="reward-uses">Uses: ${coupon.uses}</div>
                 </div>
-                
-                <img src="assets/images/ticket.png" class="coupon-bg-img" alt="Gift voucher ticket">
-                
-                <div class="coupon-title-text">${coupon.title}</div>
+                <canvas class="scratch-canvas" id="canvas-card-${index}"></canvas>
+                <div class="scratch-instruction">✨ Scratch to Reveal ✨</div>
             `;
 
-            const toggleCoupon = (e) => {
-                e.stopPropagation();
+            grid.appendChild(card);
 
-                document.querySelectorAll('.coupon-card').forEach(c => {
-                    if (c !== card) c.classList.remove('active');
-                });
+            // Initialize Scratch Canvas
+            setupScratchCanvas(card, index);
+        });
+    }
 
-                const isNowActive = card.classList.toggle('active');
+    function setupScratchCanvas(card, index) {
+        const canvas = card.querySelector('.scratch-canvas');
+        if (!canvas) return;
 
-                if (isNowActive) {
-                    sound.playTone(783.99, 'sine', 0.25, 0.1);
-                    const rect = card.getBoundingClientRect();
-                    particleEngine.burst(rect.left + rect.width / 2, rect.top + 20, 15, 'sparkle');
-                }
+        const ctx = canvas.getContext('2d');
+        const rect = card.getBoundingClientRect();
+        const width = rect.width || 300;
+        const height = rect.height || 210;
 
-                if (!clickedCouponIndices.has(index)) {
-                    clickedCouponIndices.add(index);
-                    if (clickedCouponIndices.size === couponData.length && nextBtn) {
-                        nextBtn.style.display = 'inline-block';
-                        sound.playMagic();
-                        particleEngine.burst(window.innerWidth / 2, window.innerHeight - 80, 40, 'mixed');
+        canvas.width = width;
+        canvas.height = height;
+
+        // Draw foil coating (pastel shimmer gradient)
+        const grad = ctx.createLinearGradient(0, 0, width, height);
+        grad.addColorStop(0, '#ff9ebb');
+        grad.addColorStop(0.5, '#ff8da1');
+        grad.addColorStop(1, '#ff6b85');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, width, height);
+
+        // Add subtle patterned sparkles on foil
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+        for (let i = 0; i < 18; i++) {
+            const sx = Math.random() * width;
+            const sy = Math.random() * height;
+            ctx.beginPath();
+            ctx.arc(sx, sy, Math.random() * 2 + 1, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Draw decorative banner text
+        ctx.font = 'bold 15px "CustomFont", "Nunito", sans-serif';
+        ctx.fillStyle = 'white';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+        ctx.shadowBlur = 4;
+        ctx.fillText('✨ SPECIAL VOUCHER ✨', width / 2, height / 2 - 12);
+        ctx.font = '12px "CustomFont", "Nunito", sans-serif';
+        ctx.fillText('(Scratch to Uncover)', width / 2, height / 2 + 12);
+        ctx.shadowBlur = 0; // reset shadow
+
+        let isDrawing = false;
+        let isScratched = false;
+        let strokeCount = 0;
+
+        function scratch(e) {
+            if (!isDrawing || isScratched) return;
+
+            const cRect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            const x = clientX - cRect.left;
+            const y = clientY - cRect.top;
+
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.beginPath();
+            ctx.arc(x, y, 22, 0, Math.PI * 2);
+            ctx.fill();
+
+            strokeCount++;
+            if (strokeCount % 8 === 0) {
+                checkClearance();
+            }
+        }
+
+        function checkClearance() {
+            if (isScratched) return;
+
+            try {
+                // High-performance stride sampling
+                const imgData = ctx.getImageData(0, 0, width, height);
+                const data = imgData.data;
+                const stride = 32; // check every 8th pixel (4 bytes each)
+                let clearedPixels = 0;
+                let totalSamples = 0;
+
+                for (let i = 3; i < data.length; i += stride) {
+                    totalSamples++;
+                    if (data[i] === 0) {
+                        clearedPixels++;
                     }
                 }
-            };
 
-            card.onclick = toggleCoupon;
-            card.onkeydown = (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    toggleCoupon(e);
+                const ratio = clearedPixels / totalSamples;
+
+                if (ratio >= 0.45) {
+                    isScratched = true;
+                    card.classList.add('scratched');
+                    canvas.style.opacity = '0';
+                    canvas.style.pointerEvents = 'none';
+
+                    sound.playMagic();
+                    const cardRect = card.getBoundingClientRect();
+                    particleEngine.burst(cardRect.left + cardRect.width / 2, cardRect.top + cardRect.height / 2, 25, 'mixed');
+
+                    scratchedCouponSet.add(index);
+
+                    if (scratchedCouponSet.size === couponData.length) {
+                        const nextBtn = document.getElementById('coupons-next-btn');
+                        if (nextBtn) {
+                            nextBtn.style.display = 'inline-block';
+                            sound.playMagic();
+                            particleEngine.burst(window.innerWidth / 2, window.innerHeight - 70, 45, 'mixed');
+                        }
+                    }
                 }
-            };
-
-            grid.appendChild(card);
-        });
-
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.coupon-card')) {
-                document.querySelectorAll('.coupon-card').forEach(c => c.classList.remove('active'));
+            } catch (err) {
+                // Ignore canvas sampling security errors if local file
             }
-        });
+        }
+
+        // Pointer & Touch Event Listeners
+        const startScratch = (e) => {
+            isDrawing = true;
+            scratch(e);
+        };
+
+        const stopScratch = () => {
+            if (isDrawing) {
+                isDrawing = false;
+                checkClearance();
+            }
+        };
+
+        canvas.addEventListener('mousedown', startScratch);
+        window.addEventListener('mousemove', scratch);
+        window.addEventListener('mouseup', stopScratch);
+
+        canvas.addEventListener('touchstart', (e) => {
+            startScratch(e);
+        }, { passive: true });
+
+        canvas.addEventListener('touchmove', (e) => {
+            scratch(e);
+        }, { passive: true });
+
+        window.addEventListener('touchend', stopScratch);
     }
 
     const couponsNextBtn = document.getElementById('coupons-next-btn');
@@ -818,12 +985,11 @@
     if (easterEggBtn) {
         easterEggBtn.addEventListener('click', (e) => {
             sound.playMagic();
-            // Multiple cascading bursts across screen
             const width = window.innerWidth;
             const height = window.innerHeight;
-            particleEngine.burst(e.clientX, e.clientY, 35, 'heart');
-            setTimeout(() => particleEngine.burst(width * 0.25, height * 0.4, 30, 'sparkle'), 120);
-            setTimeout(() => particleEngine.burst(width * 0.75, height * 0.4, 30, 'mixed'), 240);
+            particleEngine.burst(e.clientX, e.clientY, 30, 'heart');
+            setTimeout(() => particleEngine.burst(width * 0.3, height * 0.35, 25, 'sparkle'), 120);
+            setTimeout(() => particleEngine.burst(width * 0.7, height * 0.35, 25, 'mixed'), 240);
         });
     }
 
@@ -832,15 +998,16 @@
         img.style.cursor = 'pointer';
         img.addEventListener('click', (e) => {
             sound.playTone(880, 'sine', 0.2, 0.08);
-            particleEngine.burst(e.clientX, e.clientY, 18, 'sparkle');
+            particleEngine.burst(e.clientX, e.clientY, 15, 'sparkle');
         });
     });
 
     /* ==========================================================================
-       11. APPLICATION INITIALIZATION
+       11. INITIALIZATION ON DOM READY
        ========================================================================== */
     document.addEventListener('DOMContentLoaded', () => {
         handleHashChange();
     });
 
-})();
+})();
+

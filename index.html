@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <title>A Special Journey ♡</title>
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -29,14 +29,38 @@
     <!-- Main SPA Screen Container -->
     <main id="app-container">
 
-        <!-- ==================== SCREEN 1: INTRO / ENVELOPE ==================== -->
+        <!-- ==================== SCREEN 1: INTRO / WAX SEAL ENVELOPE ==================== -->
         <section id="screen-intro" class="app-screen active">
             <div class="intro-wrapper">
-                <div id="envelope-container" role="button" tabindex="0" title="Click to open your letter">
-                    <img src="assets/images/envelope.png" alt="Envelope" id="envelope">
-                    <p class="prompt-text">♡ Click to open your letter ♡</p>
+                
+                <!-- Animated 3D Wax Seal Envelope Component -->
+                <div class="wax-envelope-wrapper" id="wax-envelope-wrapper">
+                    <div class="wax-envelope" id="wax-envelope" role="button" tabindex="0" title="Click the wax seal to open your letter">
+                        <div class="envelope-back"></div>
+                        
+                        <!-- Letter sliding inside envelope -->
+                        <div class="envelope-letter" id="envelope-letter">
+                            <div class="letter-inner">
+                                <span class="letter-stamp">💌</span>
+                                <h3>Dearest [Name],</h3>
+                                <p>Ever since we first met, <span id="timer">Calculating...</span> ago, my world has been so much brighter.</p>
+                                <p>I made this website to ask you a very special question...</p>
+                                <p class="letter-signature">Love always, <strong>[Name]</strong></p>
+                            </div>
+                        </div>
+
+                        <div class="envelope-pocket"></div>
+                        <div class="envelope-flap" id="envelope-flap"></div>
+                        <div class="wax-seal" id="wax-seal" title="Break the Wax Seal">
+                            <span class="seal-icon">❤️</span>
+                            <span class="seal-ring"></span>
+                        </div>
+                    </div>
+                    
+                    <p class="prompt-text" id="envelope-prompt">♡ Tap the wax seal to open your letter ♡</p>
                 </div>
 
+                <!-- Expanded Letter View (Smoothly Revealed) -->
                 <div id="message-content" style="display: none;">
                     <img src="assets/images/cat_heart.gif" class="side-cat" alt="Cute heart cat">
                     
@@ -44,7 +68,7 @@
                         <p>
                             Dearest [Name],
                             <br><br>
-                            Ever since we first met, <span id="timer">Calculating...</span> ago, my world has been so much brighter.
+                            Ever since we first met, <span id="timer-expanded">Calculating...</span> ago, my world has been so much brighter.
                             <br><br>
                             I wanted to make you this website to ask perhaps the most important question of your life.
                             <br><br>
@@ -153,18 +177,18 @@
             </div>
         </section>
 
-        <!-- ==================== SCREEN 6: MYSTERY MOMENTS ==================== -->
+        <!-- ==================== SCREEN 6: 3D POLAROID GALLERY ==================== -->
         <section id="screen-moments" class="app-screen">
             <div class="moments-wrapper">
                 <header class="intro-section">
-                    <h2 class="intro-text">Some of our best moments are inside these boxes, Open them to see whats inside ♡</h2>
+                    <h2 class="intro-text">Tactile Polaroid Memories ♡ Tap any photo to flip & read!</h2>
                 </header>
                 
-                <div class="boxes-container" id="boxes-grid" aria-live="polite"></div>
+                <div class="polaroid-grid" id="polaroid-grid" aria-live="polite"></div>
                 
                 <div class="reshuffle-container">
-                    <button id="reshuffle-btn" class="secondary-btn">Reshuffle Boxes ↻</button>
-                    <div class="counter-text" id="counter">Reshuffles left: ...</div>
+                    <button id="reshuffle-btn" class="secondary-btn">Shuffle Memories ↻</button>
+                    <div class="counter-text" id="counter">Shuffles left: ...</div>
                 </div>
 
                 <footer class="bottom-nav">
@@ -175,15 +199,15 @@
             </div>
         </section>
 
-        <!-- ==================== SCREEN 7: GIFT COUPONS ==================== -->
+        <!-- ==================== SCREEN 7: INTERACTIVE SCRATCH-OFF COUPONS ==================== -->
         <section id="screen-coupons" class="app-screen">
             <div class="coupons-screen-wrapper">
                 <header class="coupons-header">
-                    <h2 class="coupons-title">Your Special Gift Coupons 🎟️</h2>
-                    <p class="coupons-subtitle">(Click a coupon to reveal details!)</p>
+                    <h2 class="coupons-title">Interactive Scratch-Off Vouchers 🎟️</h2>
+                    <p class="coupons-subtitle">✨ Swipe or drag across the foil to scratch & reveal your reward! ✨</p>
                 </header>
 
-                <div class="coupons-container" id="coupons-grid" aria-live="polite"></div>
+                <div class="scratch-coupons-grid" id="scratch-coupons-grid" aria-live="polite"></div>
 
                 <footer class="coupons-footer">
                     <button id="coupons-next-btn" class="next-page-btn">
