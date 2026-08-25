@@ -3,164 +3,217 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A Special Letter</title>
-    <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap" rel="stylesheet">
+    <title>A Special Journey ♡</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
-    <style>
-        /* This internal CSS is specific to the Envelope Page */
-        body { 
-            background-image: url("heart-bg.jpg"); 
-            background-size: cover; 
-            height: 100vh;
-            display: flex;
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: flex-start;
-            padding-top: 60px;
-            margin: 0;
-            overflow: hidden; 
-            font-family: 'Arial', sans-serif;
-        }
-        .intro-wrapper { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            text-align: center; 
-            width: 90%;
-            max-width: 1200px;
-            z-index: 10;
-        }
-        @keyframes sparkle-env {
-            0% { transform: scale(1); filter: drop-shadow(0 0 0px #fff); }
-            50% { transform: scale(1.05); filter: drop-shadow(0 0 20px #fff); }
-            100% { transform: scale(1); filter: drop-shadow(0 0 0px #fff); }
-        }
-        #envelope-container { 
-            cursor: pointer; 
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transition: transform 0.2s;
-            margin-top: 15vh; 
-        }
-        #envelope-container:hover { transform: scale(1.02); }
-        #envelope { 
-            width: 350px; height: auto; margin-bottom: 20px; 
-            animation: sparkle-env 2s infinite ease-in-out; 
-        }
-        .prompt-text {
-            font-size: 2.2rem; font-weight: bold; color: #db4e4e;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 1), 0 0 5px rgba(255, 255, 255, 1);
-            background: rgba(255, 255, 255, 0.6); 
-            padding: 10px 25px; border-radius: 20px; display: inline-block;
-        }
-        #message-content { 
-            display: none; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 30px; 
-            padding: 20px; 
-            width: 100%;
-            animation: fadeIn 1s ease; 
-        }
-        .letter-paper { 
-            flex: 1;
-            max-width: 800px;
-            background-color: #fffef0; 
-            background-image: repeating-linear-gradient(to bottom, transparent 0px, transparent 39px, #AFCBFF 40px);
-            line-height: 40px; 
-            padding: 30px 40px;
-            box-shadow: 5px 5px 20px rgba(0,0,0,0.2); 
-            font-family: 'Indie Flower', cursive; 
-            font-size: 2.2rem;
-            color: #333;
-            text-align: left;
-            position: relative;
-        }
-        #timer {
-            font-weight: bold;
-            color: #db4e4e;
-            background-color: rgba(255, 255, 220, 0.8); 
-            padding: 0 5px;
-            border-radius: 5px;
-        }
-        .side-cat { width: 180px; height: auto; }
-        .dancing-kitty { margin-top: -60px; }
-        #proceed-btn { 
-            display: none; margin-top: 40px; background-color: #ff8da1; color: white; 
-            padding: 15px 40px; font-size: 1.6rem; cursor: pointer; border: none; 
-            border-radius: 12px; font-weight: bold; font-family: sans-serif;
-            position: relative; z-index: 100;
-        }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        
-        @media (max-width: 900px) {
-            #message-content { flex-direction: column; gap: 20px; }
-            .side-cat { width: 120px; }
-            .letter-paper { width: 90%; font-size: 1.6rem; line-height: 30px; order: -1;}
-            .dancing-kitty { margin-top: 0; }
-        }
-    </style>
 </head>
 <body>
-    <div class="intro-wrapper">
-        <div id="envelope-container" onclick="openLetter()">
-            <img src="assets/images/envelope.png" alt="Envelope" id="envelope">
-            <p class="prompt-text">♡ Click to open your letter ♡</p>
-        </div>
+    <!-- Interactive Background Particle Canvas -->
+    <canvas id="bg-canvas" aria-hidden="true"></canvas>
 
-        <div id="message-content">
-            <img src="assets/images/cat_heart.gif" class="side-cat" alt="cat heart">
-            
-            <div class="letter-paper">
-                <p>
-                    Dearest [Name],
-                    <br><br>
-                    Ever since we first met, <span id="timer">Calculating...</span> ago, my world has been so much brighter.
-                    <br><br>
-                    I wanted to make you this website to ask perhaps the most important question of your life.
-                    <br><br>
-                    Love always,
-                    <br>
-                    [Name]
-                </p>
+    <!-- Top Utility Bar: Ambient Chime & Easter Egg Controls -->
+    <header class="top-controls" aria-label="Controls">
+        <button id="audio-toggle-btn" class="control-btn" title="Toggle Ambient Audio / Chimes" aria-label="Toggle audio">
+            <span class="control-icon" id="audio-icon">🎵</span>
+            <span class="control-label" id="audio-label">Sound FX: ON</span>
+        </button>
+        <button id="easter-egg-btn" class="control-btn easter-egg-trigger" title="Click for a magical surprise!" aria-label="Surprise effect">
+            <span class="control-icon">✨</span>
+            <span class="control-label">Surprise</span>
+        </button>
+    </header>
+
+    <!-- Main SPA Screen Container -->
+    <main id="app-container">
+
+        <!-- ==================== SCREEN 1: INTRO / ENVELOPE ==================== -->
+        <section id="screen-intro" class="app-screen active">
+            <div class="intro-wrapper">
+                <div id="envelope-container" role="button" tabindex="0" title="Click to open your letter">
+                    <img src="assets/images/envelope.png" alt="Envelope" id="envelope">
+                    <p class="prompt-text">♡ Click to open your letter ♡</p>
+                </div>
+
+                <div id="message-content" style="display: none;">
+                    <img src="assets/images/cat_heart.gif" class="side-cat" alt="Cute heart cat">
+                    
+                    <div class="letter-paper">
+                        <p>
+                            Dearest [Name],
+                            <br><br>
+                            Ever since we first met, <span id="timer">Calculating...</span> ago, my world has been so much brighter.
+                            <br><br>
+                            I wanted to make you this website to ask perhaps the most important question of your life.
+                            <br><br>
+                            Love always,
+                            <br>
+                            [Name]
+                        </p>
+                    </div>
+
+                    <img src="assets/images/cat_dance.gif" class="side-cat dancing-kitty" alt="Dancing cat">
+                </div>
+
+                <button id="intro-proceed-btn" class="primary-btn" style="display: none;">
+                    Click to Continue ➜
+                </button>
+            </div>
+        </section>
+
+        <!-- ==================== SCREEN 2: THE QUESTION ==================== -->
+        <section id="screen-question" class="app-screen">
+            <div class="container main-card">
+                <img src="assets/images/togepi-love.gif" id="togepi-gif" alt="Cute Togepi asking a question"/>
+                
+                <h1 id="message">Will you be my girlfriend? (˶ᵔ ᵕ ᵔ˶)</h1>
+                
+                <div class="btn-container">
+                    <button id="yes-btn" class="action-btn yes-choice-btn">Yes</button>
+                    <button id="no-btn" class="action-btn no-choice-btn">No</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== SCREEN 3: NO CHOICE FALLBACK ==================== -->
+        <section id="screen-no-choice" class="app-screen">
+            <div class="container main-card">
+                <img src="assets/images/togepi-angry.gif" id="togepi-angry-gif" alt="Angry Togepi demanding yes"/>
+                
+                <h1 class="header_text">
+                    There is NO not dating me, you have to say YES.
+                </h1>
+                
+                <div class="btn-container">
+                    <button id="no-choice-yes-btn" class="action-btn yes-choice-btn">YES ❤️</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== SCREEN 4: CELEBRATION / YAY ==================== -->
+        <section id="screen-yay" class="app-screen">
+            <div class="container main-card celebration-card">
+                <img src="assets/images/togepi-and-pikachu.gif" id="yay-gif" alt="Togepi and Pikachu celebrating"/>
+
+                <div class="header_text">
+                    Yay! I am officially the luckiest boyfriend in the world! ❤️
+                </div>
+                
+                <div class="text-small">
+                    (Get ready for lots of dates (Eventually) and annoying amounts of love!)
+                </div>
             </div>
 
-            <img src="assets/images/cat_dance.gif" class="side-cat dancing-kitty" alt="cat dance">
-        </div>
+            <button id="yay-next-btn" class="primary-btn pulse-btn">
+                There is more I want to say... ➜
+            </button>
+        </section>
 
-        <button id="proceed-btn" onclick="window.location.href='main.html'">Click to Continue</button>
-    </div>
+        <!-- ==================== SCREEN 5: BALANCED DOUBLE-PAGE LETTER ==================== -->
+        <section id="screen-letter" class="app-screen">
+            <div class="letter-layout-container">
+                <div class="letter-dual-wrapper">
+                    <!-- Page 1 -->
+                    <article class="letter-page page-1">
+                        <header>
+                            <h2>Dearest [Name],</h2>
+                        </header>
+                        <p>
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                        </p>
+                        <p>
+                            Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                        </p>
+                        
+                        <footer class="turn-page-note">(Letter continues on right...)</footer>
+                    </article>
 
+                    <!-- Page 2 -->
+                    <article class="letter-page page-2">
+                        <p>
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                        </p>
+                        <p>
+                            P.S. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                        </p>
+                        <p class="letter-signoff">
+                            Yours forever and evermore,<br><br>
+                            <strong>[Name]</strong>
+                        </p>
+                    </article>
+                </div>
+
+                <div class="letter-nav">
+                    <button id="letter-next-btn" class="primary-btn">
+                        Some of our best moments SO far. ➜
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== SCREEN 6: MYSTERY MOMENTS ==================== -->
+        <section id="screen-moments" class="app-screen">
+            <div class="moments-wrapper">
+                <header class="intro-section">
+                    <h2 class="intro-text">Some of our best moments are inside these boxes, Open them to see whats inside ♡</h2>
+                </header>
+                
+                <div class="boxes-container" id="boxes-grid" aria-live="polite"></div>
+                
+                <div class="reshuffle-container">
+                    <button id="reshuffle-btn" class="secondary-btn">Reshuffle Boxes ↻</button>
+                    <div class="counter-text" id="counter">Reshuffles left: ...</div>
+                </div>
+
+                <footer class="bottom-nav">
+                    <button id="moments-next-btn" class="gift-btn">
+                        I have a small gift for you 😉 ➜
+                    </button>
+                </footer>
+            </div>
+        </section>
+
+        <!-- ==================== SCREEN 7: GIFT COUPONS ==================== -->
+        <section id="screen-coupons" class="app-screen">
+            <div class="coupons-screen-wrapper">
+                <header class="coupons-header">
+                    <h2 class="coupons-title">Your Special Gift Coupons 🎟️</h2>
+                    <p class="coupons-subtitle">(Click a coupon to reveal details!)</p>
+                </header>
+
+                <div class="coupons-container" id="coupons-grid" aria-live="polite"></div>
+
+                <footer class="coupons-footer">
+                    <button id="coupons-next-btn" class="next-page-btn">
+                        I have one last thing to say... ➜
+                    </button>
+                </footer>
+            </div>
+        </section>
+
+        <!-- ==================== SCREEN 8: FINAL OUTRO NOTE ==================== -->
+        <section id="screen-final" class="app-screen">
+            <div class="final-letter-box">
+                <p>
+                    Thank you for taking the time to explore this website. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                </p>
+                <p>
+                    Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+                </p>
+                <p>
+                    Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                </p>
+                <button id="final-restart-btn" class="back-home-btn">
+                    Go back to start ♡
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Core SPA & Particle Engine Script -->
     <script src="script.js"></script>
-
-    <script>
-        function openLetter() {
-            document.getElementById('envelope-container').style.display = 'none';
-            document.getElementById('message-content').style.display = 'flex';
-            document.getElementById('proceed-btn').style.display = 'block';
-            setInterval(updateTimer, 1000);
-            updateTimer(); 
-        }
-
-        const startDate = new Date("January 10, 2026 22:25:00").getTime();
-
-        function updateTimer() {
-            const now = new Date().getTime();
-            const distance = now - startDate;
-
-            if (distance < 0) {
-                 document.getElementById("timer").innerHTML = "a little while";
-                 return;
-            }
-
-            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-            document.getElementById("timer").innerHTML = days + "d " + hours + "h " + minutes + "m " + seconds + "s";
-        }
-    </script>
 </body>
 </html>
