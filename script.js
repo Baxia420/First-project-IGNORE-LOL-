@@ -10,13 +10,14 @@
    ========================================================================== */
 const APP_CONFIG = {
     // 1. Anniversary / First Met Date for Live Counter (Year, Month [0-indexed], Day, Hour, Min, Sec)
-    startDate: new Date(2024, 0, 10, 22, 25, 0),
+    startDate: new Date(2026, 7, 19, 15, 0, 0), // August 19, 2026 at 3:00 PM
 
     // 2. Intro Envelope Note
     introLetter: {
-        salutation: "Dearest [Name],",
-        body: "Ever since we first met, {TIMER} ago, my world has been so much brighter. I wanted to make you this special website to ask perhaps the most important question of your life.",
-        signOff: "Love always,\n[Name]"
+        salutation: "My dearest, Cici",
+        body: "Ever since we met on CMB {TIMER} ago, my life was never the same. My days now have laughter. My days have warmth and happiness. But most importantly, my days now have you. And I am grateful for that. I want to ask a question. A very important question. But before that, let's take a VERY short trip down memory lane...",
+        signOff: "Love always,\n[Your Name]",
+        btnText: "Let's take a trip down memory lane ♡ →"
     },
 
     // 3. 3D Polaroid Memories (7 Moments with 3 displayed per circular shuffle)
@@ -287,9 +288,12 @@ const APP_CONFIG = {
             });
 
             document.addEventListener('visibilitychange', () => {
-                this.isRunning = !document.hidden;
-                if (this.isRunning) {
+                if (!document.hidden) {
+                    this.isRunning = true;
+                    this.lastTime = performance.now();
                     requestAnimationFrame(this.animate);
+                } else {
+                    this.isRunning = false;
                 }
             });
 
@@ -298,6 +302,7 @@ const APP_CONFIG = {
             }
 
             this.animate = this.animate.bind(this);
+            this.lastTime = performance.now();
             requestAnimationFrame(this.animate);
         }
 
@@ -421,8 +426,18 @@ const APP_CONFIG = {
             this.ctx.restore();
         }
 
-        animate() {
+        animate(now) {
             if (!this.isRunning) return;
+
+            const currentTime = typeof now === 'number' ? now : performance.now();
+            let dt = (currentTime - this.lastTime) / 1000;
+            this.lastTime = currentTime;
+
+            // Clamping delta time prevents speed jumps when switching tabs
+            if (dt > 0.05 || dt <= 0 || isNaN(dt)) {
+                dt = 0.0166;
+            }
+            const timeScale = dt / 0.0166;
 
             this.ctx.clearRect(0, 0, this.width, this.height);
 
@@ -433,13 +448,13 @@ const APP_CONFIG = {
                 const p = this.particles[i];
 
                 if (p.isBurst) {
-                    p.x += p.speedX;
-                    p.y += p.speedY;
-                    p.speedX *= p.friction;
-                    p.speedY *= p.friction;
-                    p.speedY += p.gravity;
-                    p.rotation += p.rotationSpeed;
-                    p.alpha -= p.decay;
+                    p.x += p.speedX * timeScale;
+                    p.y += p.speedY * timeScale;
+                    p.speedX *= Math.pow(p.friction, timeScale);
+                    p.speedY *= Math.pow(p.friction, timeScale);
+                    p.speedY += p.gravity * timeScale;
+                    p.rotation += p.rotationSpeed * timeScale;
+                    p.alpha -= p.decay * timeScale;
 
                     if (p.type === 'heart') {
                         this.drawHeart(p.x, p.y, p.size, p.color, p.alpha, p.rotation);
@@ -455,13 +470,13 @@ const APP_CONFIG = {
                     }
                 } else {
                     // Constant-speed linear upward movement + gentle sine wave (Zero Acceleration)
-                    p.angle += p.angleSpeed;
-                    p.x += Math.sin(p.angle) * p.waveAmplitude + p.vx;
-                    p.y -= p.vy;
+                    p.angle += p.angleSpeed * timeScale;
+                    p.x += (Math.sin(p.angle) * p.waveAmplitude + p.vx) * timeScale;
+                    p.y -= p.vy * timeScale;
 
                     // Immediately damp velocity offsets back to baseline
-                    p.vx *= 0.92;
-                    p.vy = p.baseSpeed + (p.vy - p.baseSpeed) * 0.92;
+                    p.vx *= Math.pow(0.92, timeScale);
+                    p.vy = p.baseSpeed + (p.vy - p.baseSpeed) * Math.pow(0.92, timeScale);
 
                     // Gentle mouse repulsion
                     if (this.mouse.active) {
@@ -510,12 +525,12 @@ const APP_CONFIG = {
        ========================================================================== */
     const SCREENS = {
         'intro': 'screen-intro',
+        'moments': 'screen-moments',
         'question': 'screen-question',
         'no-choice': 'screen-no-choice',
         'yay': 'screen-yay',
-        'letter': 'screen-letter',
-        'moments': 'screen-moments',
         'coupons': 'screen-coupons',
+        'letter': 'screen-letter',
         'final': 'screen-final'
     };
 
@@ -582,7 +597,7 @@ const APP_CONFIG = {
        4. DYNAMIC CONTENT RENDERING PIPELINE (POPULATE FROM APP_CONFIG)
        ========================================================================== */
     function renderDynamicContent() {
-        // 1. Populate Intro Letter Paper
+        // 1. Populate Intro Letter Paper & Continue Button
         const introPaper = document.getElementById('intro-letter-paper');
         if (introPaper && APP_CONFIG.introLetter) {
             const salutation = APP_CONFIG.introLetter.salutation || 'Dearest,';
@@ -598,6 +613,11 @@ const APP_CONFIG = {
                     ${signOff}
                 </p>
             `;
+        }
+
+        const introProceedBtn = document.getElementById('intro-proceed-btn');
+        if (introProceedBtn && APP_CONFIG.introLetter && APP_CONFIG.introLetter.btnText) {
+            introProceedBtn.innerText = APP_CONFIG.introLetter.btnText;
         }
 
         // 2. Populate Final Double-Page Letter
@@ -658,7 +678,7 @@ const APP_CONFIG = {
         if (!timerElement) return;
 
         const now = new Date().getTime();
-        const start = APP_CONFIG.startDate ? APP_CONFIG.startDate.getTime() : new Date("January 10, 2026 22:25:00").getTime();
+        const start = APP_CONFIG.startDate ? APP_CONFIG.startDate.getTime() : new Date(2026, 7, 19, 15, 0, 0).getTime();
         const distance = now - start;
 
         let timeStr = "a little while";
@@ -667,6 +687,13 @@ const APP_CONFIG = {
             const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            timeStr = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+        } else {
+            const absDist = Math.abs(distance);
+            const days = Math.floor(absDist / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((absDist % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((absDist % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((absDist % (1000 * 60)) / 1000);
             timeStr = `${days}d ${hours}h ${minutes}m ${seconds}s`;
         }
 
@@ -711,7 +738,7 @@ const APP_CONFIG = {
     const introProceedBtn = document.getElementById('intro-proceed-btn');
     if (introProceedBtn) {
         introProceedBtn.addEventListener('click', () => {
-            goToScreen('screen-question');
+            goToScreen('screen-moments');
         });
     }
 
@@ -778,54 +805,53 @@ const APP_CONFIG = {
     if (noChoiceYesBtn) noChoiceYesBtn.addEventListener('click', handleYesClick);
 
     /* ==========================================================================
-       7. SCREEN 4 & 5: CELEBRATION & DOUBLE-PAGE NAVIGATION
+       7. CELEBRATION & LETTER NAVIGATION
        ========================================================================== */
     const yayNextBtn = document.getElementById('yay-next-btn');
     if (yayNextBtn) {
         yayNextBtn.addEventListener('click', () => {
-            goToScreen('screen-letter');
+            goToScreen('screen-coupons');
         });
     }
 
     const letterNextBtn = document.getElementById('letter-next-btn');
     if (letterNextBtn) {
         letterNextBtn.addEventListener('click', () => {
-            goToScreen('screen-moments');
+            goToScreen('screen-final');
         });
     }
 
     /* ==========================================================================
-       8. SCREEN 6: 3D POLAROID MEMORY GALLERY & IMAGE PIPELINE
+       8. SCREEN 6: 3D POLAROID MEMORY GALLERY (3-3-1 PAGINATION)
        ========================================================================== */
-    let momentStartIndex = 0;
+    let currentPolaroidPage = 0; // Page 0: (1..3), Page 1: (4..6), Page 2: (7)
     let momentsInitialized = false;
 
-    function getVisibleMoments(startIndex) {
+    function getVisibleMoments(page) {
         const list = APP_CONFIG.moments && APP_CONFIG.moments.length > 0 ? APP_CONFIG.moments : [];
-        const total = list.length;
-        if (total === 0) return [];
-        return [
-            list[startIndex % total],
-            list[(startIndex + 1) % total],
-            list[(startIndex + 2) % total]
-        ];
+        if (page === 0) return [list[0], list[1], list[2]].filter(Boolean);
+        if (page === 1) return [list[3], list[4], list[5]].filter(Boolean);
+        if (page === 2) return [list[6]].filter(Boolean);
+        return [];
     }
 
-    function updateShuffleCounter() {
-        const counter = document.getElementById('counter');
-        if (!counter) return;
-        const total = APP_CONFIG.moments ? APP_CONFIG.moments.length : 7;
-        const start = (momentStartIndex % total) + 1;
-        const mid = ((momentStartIndex + 1) % total) + 1;
-        const end = ((momentStartIndex + 2) % total) + 1;
-        counter.innerText = `Viewing Chapters ${start}, ${mid}, ${end} of ${total} ↻`;
+    function updateReshuffleButton() {
+        const reshuffleBtn = document.getElementById('reshuffle-btn');
+        if (!reshuffleBtn) return;
+        if (currentPolaroidPage === 0) {
+            reshuffleBtn.innerText = "Next Memories (1/3) ↻";
+        } else if (currentPolaroidPage === 1) {
+            reshuffleBtn.innerText = "Next Memories (2/3) ↻";
+        } else {
+            reshuffleBtn.innerText = "Back to First Memories (3/3) ↻";
+        }
     }
 
     function initPolaroidMoments() {
         if (momentsInitialized) return;
         momentsInitialized = true;
-        momentStartIndex = 0;
-        updateShuffleCounter();
+        currentPolaroidPage = 0;
+        updateReshuffleButton();
         renderPolaroidCards();
     }
 
@@ -848,7 +874,7 @@ const APP_CONFIG = {
         if (!grid) return;
         grid.innerHTML = '';
 
-        const currentSet = getVisibleMoments(momentStartIndex);
+        const currentSet = getVisibleMoments(currentPolaroidPage);
 
         currentSet.forEach((moment, idx) => {
             const randomRotation = (Math.random() * 3.6 - 1.8).toFixed(1); // Organic subtle tilt
@@ -925,10 +951,8 @@ const APP_CONFIG = {
 
         sound.playChime([440.00, 554.37, 659.25], 0.05);
 
-        const total = APP_CONFIG.moments ? APP_CONFIG.moments.length : 7;
-        momentStartIndex = (momentStartIndex + 3) % total;
-
-        updateShuffleCounter();
+        currentPolaroidPage = (currentPolaroidPage + 1) % 3;
+        updateReshuffleButton();
         renderPolaroidCards();
     }
 
@@ -938,7 +962,7 @@ const APP_CONFIG = {
     const momentsNextBtn = document.getElementById('moments-next-btn');
     if (momentsNextBtn) {
         momentsNextBtn.addEventListener('click', () => {
-            goToScreen('screen-coupons');
+            goToScreen('screen-question');
         });
     }
 
@@ -1126,7 +1150,7 @@ const APP_CONFIG = {
     const couponsNextBtn = document.getElementById('coupons-next-btn');
     if (couponsNextBtn) {
         couponsNextBtn.addEventListener('click', () => {
-            goToScreen('screen-final');
+            goToScreen('screen-letter');
         });
     }
 

@@ -749,33 +749,27 @@ button, .primary-btn, .secondary-btn, .gift-btn, .back-home-btn, .next-page-btn 
     z-index: 10;
 }
 
-.counter-text {
-    font-size: 0.95rem;
-    color: #fff;
-    font-weight: bold;
-    font-family: var(--font-heading);
-    background: var(--primary-color);
-    padding: 7px 20px;
-    border-radius: 50px;
-    display: inline-block;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-}
-
 .gift-btn {
     background: linear-gradient(135deg, var(--success-green) 0%, #4a7a4d 50%, #3d6341 100%);
     color: white;
-    padding: 15px 42px;
-    font-size: 1.25rem;
+    padding: 14px 28px;
+    font-size: 1.12rem;
+    line-height: 1.45;
+    max-width: 680px;
+    width: 92%;
     border-radius: 50px;
     font-weight: bold;
     cursor: pointer;
     transition: all 0.25s ease;
     box-shadow: 0 4px 15px rgba(87, 145, 94, 0.3);
-    margin-top: 10px;
+    margin-top: 15px;
+    text-align: center;
+    border: none;
+    font-family: var(--font-heading);
 }
 
 .gift-btn:hover {
-    transform: translateY(-2px) scale(1.04);
+    transform: translateY(-2px) scale(1.02);
     box-shadow: 0 8px 25px rgba(87, 145, 94, 0.4);
 }
 
