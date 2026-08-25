@@ -19,79 +19,56 @@ const APP_CONFIG = {
         signOff: "Love always,\n[Name]"
     },
 
-    // 3. 3D Polaroid Memories (9 Moments with 3 displayed per shuffle)
+    // 3. 3D Polaroid Memories (7 Moments with 3 displayed per circular shuffle)
     moments: [
         {
             id: 1,
-            image: "assets/images/moments/moment-1.jpg",
-            title: "Our First Date",
-            date: "October 14, 2024",
-            story: "The moment we sat down and talked for hours without noticing time flying by.",
+            image: "assets/images/moments/Moments-1.jpeg",
+            title: "Moment 1",
+            story: "[Story Caption 1]",
             badge: "Chapter 1"
         },
         {
             id: 2,
-            image: "assets/images/moments/moment-2.jpg",
-            title: "Coffee & Long Walks",
-            date: "November 2, 2024",
-            story: "Holding hands in the cold with our favorite warm drinks.",
+            image: "assets/images/moments/moments-2.jpeg",
+            title: "Moment 2",
+            story: "[Story Caption 2]",
             badge: "Chapter 2"
         },
         {
             id: 3,
-            image: "assets/images/moments/moment-3.jpg",
-            title: "Late Night Talks",
-            date: "November 18, 2024",
-            story: "Talking about our wildest dreams and laughing until our stomachs hurt.",
+            image: "assets/images/moments/moments-3.jpeg",
+            title: "Moment 3",
+            story: "[Story Caption 3]",
             badge: "Chapter 3"
         },
         {
             id: 4,
-            image: "assets/images/moments/moment-4.jpg",
-            title: "Spontaneous Adventures",
-            date: "December 5, 2024",
-            story: "Exploring new places together and getting lost in the best ways.",
+            image: "assets/images/moments/moments-4.jpeg",
+            title: "Moment 4",
+            story: "[Story Caption 4]",
             badge: "Chapter 4"
         },
         {
             id: 5,
-            image: "assets/images/moments/moment-5.jpg",
-            title: "Cozy Movie Marathon",
-            date: "December 22, 2024",
-            story: "Blankets, snacks, and arguing playfully about what movie to watch next.",
+            image: "assets/images/moments/moments-5.jpeg",
+            title: "Moment 5",
+            story: "[Story Caption 5]",
             badge: "Chapter 5"
         },
         {
             id: 6,
-            image: "assets/images/moments/moment-6.jpg",
-            title: "Cooking Together",
-            date: "January 8, 2025",
-            story: "Making a delicious mess in the kitchen and tasting everything twice.",
+            image: "assets/images/moments/moments-6.jpeg",
+            title: "Moment 6",
+            story: "[Story Caption 6]",
             badge: "Chapter 6"
         },
         {
             id: 7,
-            image: "assets/images/moments/moment-7.jpg",
-            title: "Starry Night Drive",
-            date: "January 25, 2025",
-            story: "Windows down, singing along to our favorite songs under the night stars.",
+            image: "assets/images/moments/moments-7.jpeg",
+            title: "Moment 7",
+            story: "[Story Caption 7]",
             badge: "Chapter 7"
-        },
-        {
-            id: 8,
-            image: "assets/images/moments/moment-8.jpg",
-            title: "Inside Jokes & Giggles",
-            date: "February 7, 2025",
-            story: "When one look across the room was enough to make both of us burst into laughter.",
-            badge: "Chapter 8"
-        },
-        {
-            id: 9,
-            image: "assets/images/moments/moment-9.jpg",
-            title: "Quiet Companionship",
-            date: "February 14, 2025",
-            story: "Every calm, sweet second spent simply being in each other's warm presence.",
-            badge: "Chapter 9"
         }
     ],
 
@@ -348,16 +325,16 @@ const APP_CONFIG = {
             const isHeart = Math.random() > 0.35;
             p.type = isHeart ? 'heart' : 'sparkle';
             p.x = Math.random() * this.width;
-            p.y = randomY ? Math.random() * this.height : this.height + Math.random() * 40;
-            p.size = isHeart ? Math.random() * 9 + 6 : Math.random() * 3.5 + 2;
-            p.speedY = -(Math.random() * 0.35 + 0.2); // Gentle relaxing float
-            p.speedX = 0;
-            p.baseSpeedX = (Math.random() - 0.5) * 0.12;
+            p.y = randomY ? Math.random() * this.height : this.height + Math.random() * 20;
+            p.size = isHeart ? Math.random() * 8 + 6 : Math.random() * 3 + 2;
+            p.baseSpeed = Math.random() * 0.2 + 0.25; // Strictly constant 0.25px - 0.45px per frame
+            p.vx = 0;
+            p.vy = p.baseSpeed;
             p.angle = Math.random() * Math.PI * 2;
             p.angleSpeed = Math.random() * 0.008 + 0.003;
-            p.oscillationAmp = Math.random() * 0.5 + 0.2;
+            p.waveAmplitude = Math.random() * 0.5 + 0.2;
             p.color = this.colors[Math.floor(Math.random() * this.colors.length)];
-            p.alpha = Math.random() * 0.4 + 0.22;
+            p.alpha = Math.random() * 0.38 + 0.22;
             p.isBurst = false;
             return p;
         }
@@ -477,11 +454,16 @@ const APP_CONFIG = {
                         this.particles.splice(i, 1);
                     }
                 } else {
+                    // Constant-speed linear upward movement + gentle sine wave (Zero Acceleration)
                     p.angle += p.angleSpeed;
-                    p.x += Math.sin(p.angle) * p.oscillationAmp + p.baseSpeedX + p.speedX;
-                    p.y += p.speedY;
-                    p.speedX *= 0.94;
+                    p.x += Math.sin(p.angle) * p.waveAmplitude + p.vx;
+                    p.y -= p.vy;
 
+                    // Immediately damp velocity offsets back to baseline
+                    p.vx *= 0.92;
+                    p.vy = p.baseSpeed + (p.vy - p.baseSpeed) * 0.92;
+
+                    // Gentle mouse repulsion
                     if (this.mouse.active) {
                         const dx = p.x - this.mouse.x;
                         const dy = p.y - this.mouse.y;
@@ -489,9 +471,9 @@ const APP_CONFIG = {
 
                         if (distSq < mouseRadiusSq && distSq > 0) {
                             const dist = Math.sqrt(distSq);
-                            const force = (1 - dist / mouseRadius) * 1.2;
-                            p.speedX += (dx / dist) * force;
-                            p.y += (dy / dist) * force * 0.3;
+                            const force = (1 - dist / mouseRadius) * 0.8;
+                            p.vx += (dx / dist) * force;
+                            p.vy += (dy / dist) * force * 0.2;
                         }
                     }
 
@@ -501,9 +483,13 @@ const APP_CONFIG = {
                         this.drawSparkle(p.x, p.y, p.size, p.color, p.alpha);
                     }
 
-                    if (p.y < -25) {
-                        this.releaseParticleToPool(p);
-                        this.particles[i] = this.spawnAmbientParticle(false);
+                    // Reset coordinates cleanly when floating off top
+                    if (p.y < -30) {
+                        p.y = this.height + Math.random() * 20;
+                        p.x = Math.random() * this.width;
+                        p.vx = 0;
+                        p.vy = p.baseSpeed;
+                        p.angle = Math.random() * Math.PI * 2;
                     }
                 }
             }
@@ -811,33 +797,50 @@ const APP_CONFIG = {
     /* ==========================================================================
        8. SCREEN 6: 3D POLAROID MEMORY GALLERY & IMAGE PIPELINE
        ========================================================================== */
-    let shuffledMoments = [];
-    let momentIndex = 0;
-    let reshufflesLeft = 0;
+    let momentStartIndex = 0;
     let momentsInitialized = false;
 
-    function shuffleArray(arr) {
-        const copy = [...arr];
-        for (let i = copy.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [copy[i], copy[j]] = [copy[j], copy[i]];
-        }
-        return copy;
+    function getVisibleMoments(startIndex) {
+        const list = APP_CONFIG.moments && APP_CONFIG.moments.length > 0 ? APP_CONFIG.moments : [];
+        const total = list.length;
+        if (total === 0) return [];
+        return [
+            list[startIndex % total],
+            list[(startIndex + 1) % total],
+            list[(startIndex + 2) % total]
+        ];
+    }
+
+    function updateShuffleCounter() {
+        const counter = document.getElementById('counter');
+        if (!counter) return;
+        const total = APP_CONFIG.moments ? APP_CONFIG.moments.length : 7;
+        const start = (momentStartIndex % total) + 1;
+        const mid = ((momentStartIndex + 1) % total) + 1;
+        const end = ((momentStartIndex + 2) % total) + 1;
+        counter.innerText = `Viewing Chapters ${start}, ${mid}, ${end} of ${total} ↻`;
     }
 
     function initPolaroidMoments() {
         if (momentsInitialized) return;
         momentsInitialized = true;
-
-        const momentsList = APP_CONFIG.moments && APP_CONFIG.moments.length > 0 ? APP_CONFIG.moments : [];
-        shuffledMoments = shuffleArray(momentsList);
-        momentIndex = 0;
-        reshufflesLeft = Math.max(0, Math.ceil(shuffledMoments.length / 3) - 1);
-
-        const counter = document.getElementById('counter');
-        if (counter) counter.innerText = `Shuffles left: ${reshufflesLeft}`;
-
+        momentStartIndex = 0;
+        updateShuffleCounter();
         renderPolaroidCards();
+    }
+
+    function handleImageFallback(img) {
+        if (!img) return;
+        const currentSrc = img.getAttribute('src') || '';
+        if (currentSrc.endsWith('.jpg') && !img.dataset.triedJpeg) {
+            img.dataset.triedJpeg = 'true';
+            img.src = currentSrc.replace(/\.jpg$/i, '.jpeg');
+        } else if (currentSrc.endsWith('.jpeg') && !img.dataset.triedJpg) {
+            img.dataset.triedJpg = 'true';
+            img.src = currentSrc.replace(/\.jpeg$/i, '.jpg');
+        } else {
+            img.classList.add('img-error');
+        }
     }
 
     function renderPolaroidCards() {
@@ -845,11 +848,9 @@ const APP_CONFIG = {
         if (!grid) return;
         grid.innerHTML = '';
 
-        const currentSet = shuffledMoments.slice(momentIndex, momentIndex + 3);
-        momentIndex += 3;
+        const currentSet = getVisibleMoments(momentStartIndex);
 
         currentSet.forEach((moment, idx) => {
-            const globalIndex = moment.id || (momentIndex - 3 + idx + 1);
             const randomRotation = (Math.random() * 3.6 - 1.8).toFixed(1); // Organic subtle tilt
 
             const card = document.createElement('div');
@@ -865,7 +866,7 @@ const APP_CONFIG = {
                         <div class="washi-tape" title="Touch washi tape for a sparkle! ✨"></div>
                         <div class="polaroid-photo-frame">
                             <!-- Graceful Image Pipeline with Fallback -->
-                            <img src="${moment.image}" class="polaroid-img" alt="${moment.title}" onerror="this.classList.add('img-error')">
+                            <img src="${moment.image}" class="polaroid-img" alt="${moment.title}" onerror="handleImageFallback(this)">
                             <div class="polaroid-placeholder">
                                 <div class="polaroid-emoji">📷</div>
                                 <div class="placeholder-title">${moment.title}</div>
@@ -876,7 +877,7 @@ const APP_CONFIG = {
                     </div>
                     <div class="polaroid-back">
                         <div class="polaroid-stamp">
-                            <span>${moment.badge || `Chapter #${globalIndex}`}</span>
+                            <span>${moment.badge || `Chapter #${moment.id || idx + 1}`}</span>
                         </div>
                         <p>${moment.story}</p>
                     </div>
@@ -885,7 +886,6 @@ const APP_CONFIG = {
 
             // Card Flip Event
             const toggleFlip = (e) => {
-                // If user clicked the washi tape, trigger easter egg instead of flip
                 if (e.target.closest('.washi-tape')) return;
 
                 const isFlipped = card.classList.toggle('flipped');
@@ -921,26 +921,14 @@ const APP_CONFIG = {
 
     function handlePolaroidReshuffle() {
         const grid = document.getElementById('polaroid-grid');
-        const counter = document.getElementById('counter');
-        const reshuffleBtn = document.getElementById('reshuffle-btn');
         if (!grid) return;
 
         sound.playChime([440.00, 554.37, 659.25], 0.05);
 
-        if (momentIndex >= shuffledMoments.length) {
-            if (reshuffleBtn) reshuffleBtn.disabled = true;
-            if (counter) counter.innerText = "Shuffles left: 0";
+        const total = APP_CONFIG.moments ? APP_CONFIG.moments.length : 7;
+        momentStartIndex = (momentStartIndex + 3) % total;
 
-            grid.style.animation = "boxFadeOut 0.6s forwards";
-            setTimeout(() => {
-                grid.innerHTML = '<div class="final-letter-box" style="margin: 20px auto;"><p>✨ You have explored all our favorite memories! More unforgettable chapters await ahead. ♡</p></div>';
-                grid.style.animation = "fadeIn 0.6s forwards";
-            }, 600);
-            return;
-        }
-
-        reshufflesLeft--;
-        if (counter) counter.innerText = `Shuffles left: ${reshufflesLeft}`;
+        updateShuffleCounter();
         renderPolaroidCards();
     }
 

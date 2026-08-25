@@ -632,17 +632,17 @@ button, .primary-btn, .secondary-btn, .gift-btn, .back-home-btn, .next-page-btn 
     background: rgba(255, 160, 175, 0.9);
 }
 
-.polaroid-photo-frame {
+.polaroid-photo-frame, .polaroid-img-wrapper {
     width: 100%;
-    height: 230px;
-    background: #fff0f3;
+    height: 220px;
+    background: #fdf2f4;
     border-radius: 4px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    border: 1px solid rgba(0,0,0,0.06);
+    border: 1px solid rgba(0, 0, 0, 0.06);
     position: relative;
 }
 
@@ -650,6 +650,7 @@ button, .primary-btn, .secondary-btn, .gift-btn, .back-home-btn, .next-page-btn 
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: center;
     display: block;
     position: absolute;
     inset: 0;
