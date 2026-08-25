@@ -24,50 +24,50 @@ const APP_CONFIG = {
         {
             id: 1,
             image: "assets/images/moments/Moments-1.jpeg",
-            title: "Moment 1",
-            story: "[Story Caption 1]",
+            title: "Too Spicy For Us HAHA",
+            story: "Food we bought but too spicy for us HAHA. And I was so nervous and busy talking to you, I couldn't focus on the food at all. The food was not the focus anyways. You were. And you looked so cute when you smiled at my bad jokes. Hehehe.",
             badge: "Chapter 1"
         },
         {
             id: 2,
             image: "assets/images/moments/moments-2.jpeg",
-            title: "Moment 2",
-            story: "[Story Caption 2]",
+            title: "Rolling The Beads",
+            story: "This... I know you just gave it to me because you felt bad for not getting me anything. But honestly, whenever I am outside and I miss you, I hold this keychain and roll the beads. And, for some reason, it calms me a bit. As if you are right there with me.",
             badge: "Chapter 2"
         },
         {
             id: 3,
             image: "assets/images/moments/moments-3.jpeg",
-            title: "Moment 3",
-            story: "[Story Caption 3]",
+            title: "Scam Roses, Real Love",
+            story: "Roses are red, violets are blue. These roses were technically a scam but at least it won your heart. (It didn't rhyme but what to do, I am not THAT good with my words bhahaha contrary to popular belief). But at least you loved them. I will do an even better job next time. BIGGER BOUQUET, MORE ROSES. LETS GOO!",
             badge: "Chapter 3"
         },
         {
             id: 4,
             image: "assets/images/moments/moments-4.jpeg",
-            title: "Moment 4",
-            story: "[Story Caption 4]",
+            title: "Heart Attack in the Car",
+            story: "OMG GURL you gave me a heart attack. YOUR STEP FATHER CAME OUT. WHAT WAS I SUPPOSED TO DOOO? Give salam or like, hide BRUH! But it was a thrilling experience. Just not good enough to do it again LOL.",
             badge: "Chapter 4"
         },
         {
             id: 5,
             image: "assets/images/moments/moments-5.jpeg",
-            title: "Moment 5",
-            story: "[Story Caption 5]",
+            title: "Cici & Dessert",
+            story: "Heheheheheheh. Cici went from not wanting to feed me, to feeding me dessert HAHAHAHAHHA. Honestly, that felt so intimate... I love you.",
             badge: "Chapter 5"
         },
         {
             id: 6,
             image: "assets/images/moments/moments-6.jpeg",
-            title: "Moment 6",
-            story: "[Story Caption 6]",
+            title: "11/10 Hand Holding",
+            story: "HEHEHEHEHEH, FIRST TIME HOLDING HANDS TOGETHER HAHAHAHAHA. OMG SOOO CUTEEEEEEEEE. 11/10, would hold your hand until the day I die.",
             badge: "Chapter 6"
         },
         {
             id: 7,
             image: "assets/images/moments/moments-7.jpeg",
-            title: "Moment 7",
-            story: "[Story Caption 7]",
+            title: "When I Fell In Love",
+            story: "I think around this moment, I realized that I fell in love with you. As I missed my train and watched you go home, I wanted to run back to you. I wanted to hold you again. I wanted to kiss you... I wanted to tell you, face to face, that I love you, and despite only knowing you for 4 days at the time, I wanted to spend my life with you...",
             badge: "Chapter 7"
         }
     ],
