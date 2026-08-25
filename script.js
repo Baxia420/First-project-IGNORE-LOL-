@@ -93,7 +93,7 @@
             });
         }
 
-        playSealBreak() {
+        playPaperSlide() {
             if (!this.enabled) return;
             this.playTone(480, 'sine', 0.15, 0.12);
             setTimeout(() => this.playChime([659.25, 880.00, 1046.50], 0.06), 80);
@@ -198,15 +198,16 @@
             p.type = isHeart ? 'heart' : 'sparkle';
             p.x = Math.random() * this.width;
             p.y = randomY ? Math.random() * this.height : this.height + Math.random() * 40;
-            p.size = isHeart ? Math.random() * 10 + 7 : Math.random() * 4 + 2.5;
-            p.speedY = -(Math.random() * 0.7 + 0.4);
+            p.size = isHeart ? Math.random() * 9 + 6 : Math.random() * 3.5 + 2;
+            // Drastically reduced vertical drift speed for a gentle, relaxing float:
+            p.speedY = -(Math.random() * 0.35 + 0.2); // ~0.2 to 0.55 px per frame
             p.speedX = 0;
-            p.baseSpeedX = (Math.random() - 0.5) * 0.3;
+            p.baseSpeedX = (Math.random() - 0.5) * 0.12;
             p.angle = Math.random() * Math.PI * 2;
-            p.angleSpeed = Math.random() * 0.02 + 0.008;
-            p.oscillationAmp = Math.random() * 1.0 + 0.3;
+            p.angleSpeed = Math.random() * 0.008 + 0.003; // slow, gentle wave
+            p.oscillationAmp = Math.random() * 0.5 + 0.2; // subtle amplitude
             p.color = this.colors[Math.floor(Math.random() * this.colors.length)];
-            p.alpha = Math.random() * 0.45 + 0.25;
+            p.alpha = Math.random() * 0.4 + 0.22;
             p.isBurst = false;
             return p;
         }
@@ -327,13 +328,13 @@
                         this.particles.splice(i, 1);
                     }
                 } else {
-                    // Ambient particle physics
+                    // Ambient particle physics - slow & gentle float
                     p.angle += p.angleSpeed;
                     p.x += Math.sin(p.angle) * p.oscillationAmp + p.baseSpeedX + p.speedX;
                     p.y += p.speedY;
-                    p.speedX *= 0.91; // decay repulsion speed
+                    p.speedX *= 0.94; // smooth decay
 
-                    // Optimized mouse repulsion (squared distance check eliminates Math.sqrt on every frame)
+                    // Gentle mouse repulsion (squared distance check)
                     if (this.mouse.active) {
                         const dx = p.x - this.mouse.x;
                         const dy = p.y - this.mouse.y;
@@ -341,9 +342,9 @@
 
                         if (distSq < mouseRadiusSq && distSq > 0) {
                             const dist = Math.sqrt(distSq);
-                            const force = (1 - dist / mouseRadius) * 2.2;
+                            const force = (1 - dist / mouseRadius) * 1.2;
                             p.speedX += (dx / dist) * force;
-                            p.y += (dy / dist) * force * 0.4;
+                            p.y += (dy / dist) * force * 0.3;
                         }
                     }
 
@@ -447,15 +448,15 @@
     window.addEventListener('hashchange', handleHashChange);
 
     /* ==========================================================================
-       4. SCREEN 1: ANIMATED WAX SEAL ENVELOPE CONTROLLER
+       4. SCREEN 1: INTRO & ENVELOPE CONTROLLER
        ========================================================================== */
     const startDate = new Date("January 10, 2026 22:25:00").getTime();
     let timerInterval = null;
     let envelopeOpened = false;
 
     function updateTimer() {
-        const timer1 = document.getElementById("timer");
-        const timer2 = document.getElementById("timer-expanded");
+        const timerElement = document.getElementById("timer");
+        if (!timerElement) return;
 
         const now = new Date().getTime();
         const distance = now - startDate;
@@ -469,57 +470,40 @@
             timeStr = `${days}d ${hours}h ${minutes}m ${seconds}s`;
         }
 
-        if (timer1) timer1.textContent = timeStr;
-        if (timer2) timer2.textContent = timeStr;
+        timerElement.textContent = timeStr;
     }
 
-    function handleWaxSealBreak() {
+    function openEnvelope() {
         if (envelopeOpened) return;
         envelopeOpened = true;
 
-        const envelope = document.getElementById('wax-envelope');
-        const waxSeal = document.getElementById('wax-seal');
-        const prompt = document.getElementById('envelope-prompt');
+        const envContainer = document.getElementById('envelope-container');
         const messageContent = document.getElementById('message-content');
         const proceedBtn = document.getElementById('intro-proceed-btn');
 
-        if (envelope && waxSeal) {
-            const rect = waxSeal.getBoundingClientRect();
+        if (envContainer && messageContent && proceedBtn) {
+            const rect = envContainer.getBoundingClientRect();
             particleEngine.burst(rect.left + rect.width / 2, rect.top + rect.height / 2, 35, 'sparkle');
-            sound.playSealBreak();
+            sound.playMagic();
 
-            envelope.classList.add('open');
-            if (prompt) prompt.style.display = 'none';
+            envContainer.style.display = 'none';
+            messageContent.style.display = 'flex';
+            proceedBtn.style.display = 'inline-block';
 
             updateTimer();
             if (!timerInterval) {
                 timerInterval = setInterval(updateTimer, 1000);
             }
-
-            // Smoothly reveal expanded full letter view & proceed button
-            setTimeout(() => {
-                if (messageContent) {
-                    messageContent.style.display = 'flex';
-                    messageContent.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                }
-                if (proceedBtn) {
-                    proceedBtn.style.display = 'inline-block';
-                }
-            }, 800);
         }
     }
 
-    const waxSeal = document.getElementById('wax-seal');
-    const waxEnvelope = document.getElementById('wax-envelope');
-    if (waxSeal) waxSeal.addEventListener('click', handleWaxSealBreak);
-    if (waxEnvelope) {
-        waxEnvelope.addEventListener('click', (e) => {
-            if (!envelopeOpened) handleWaxSealBreak();
-        });
-        waxEnvelope.addEventListener('keydown', (e) => {
-            if ((e.key === 'Enter' || e.key === ' ') && !envelopeOpened) {
+    const envelopeContainer = document.getElementById('envelope-container');
+    if (envelopeContainer) {
+        envelopeContainer.addEventListener('click', openEnvelope);
+        envelopeContainer.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                handleWaxSealBreak();
+                openEnvelope();
             }
         });
     }

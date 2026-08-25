@@ -291,7 +291,7 @@ button, .primary-btn, .secondary-btn, .gift-btn, .back-home-btn, .next-page-btn 
 }
 
 /* ==========================================================================
-   SCREEN 1: ANIMATED WAX SEAL ENVELOPE
+   SCREEN 1: INTRO / ORIGINAL ENVELOPE
    ========================================================================== */
 .intro-wrapper {
     display: flex;
@@ -303,158 +303,35 @@ button, .primary-btn, .secondary-btn, .gift-btn, .back-home-btn, .next-page-btn 
     z-index: 10;
 }
 
-.wax-envelope-wrapper {
+@keyframes float-env {
+    0%, 100% {
+        transform: translateY(0) scale(1);
+        filter: drop-shadow(0 8px 20px rgba(219, 78, 78, 0.22));
+    }
+    50% {
+        transform: translateY(-10px) scale(1.02);
+        filter: drop-shadow(0 16px 32px rgba(219, 78, 78, 0.35));
+    }
+}
+
+#envelope-container {
+    cursor: pointer;
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 100%;
-    margin-top: 15px;
+    transition: transform 0.25s ease;
+    margin: 20px auto;
 }
 
-.wax-envelope {
-    position: relative;
-    width: min(90vw, 340px);
-    height: 220px;
-    margin: 30px auto 20px;
-    perspective: 800px;
-    cursor: pointer;
-    transition: transform 0.3s ease;
+#envelope-container:hover {
+    transform: scale(1.04);
 }
 
-.wax-envelope:hover {
-    transform: scale(1.02);
-}
-
-.envelope-back {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    background: #f7c5cc;
-    border-radius: 14px;
-    box-shadow: 0 12px 35px rgba(219, 78, 78, 0.22);
-}
-
-.envelope-pocket {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 0;
-    height: 0;
-    border-style: solid;
-    border-width: 0 min(45vw, 170px) 120px min(45vw, 170px);
-    border-color: transparent #ff9ebb #ff8da1 #ff9ebb;
-    border-radius: 0 0 14px 14px;
-    z-index: 3;
-    pointer-events: none;
-}
-
-.envelope-flap {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 0;
-    height: 0;
-    border-style: solid;
-    border-width: 120px min(45vw, 170px) 0 min(45vw, 170px);
-    border-color: #ff8da1 transparent transparent transparent;
-    transform-origin: top center;
-    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 4;
-    pointer-events: none;
-}
-
-.wax-seal {
-    position: absolute;
-    top: 92px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 56px;
-    height: 56px;
-    background: radial-gradient(circle at 35% 35%, #e63946 0%, #a80309 80%, #680004 100%);
-    border-radius: 50%;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.35), inset 0 2px 4px rgba(255, 255, 255, 0.4);
-    z-index: 5;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
-}
-
-.wax-seal:hover {
-    transform: translateX(-50%) scale(1.12);
-}
-
-.seal-icon {
-    font-size: 1.5rem;
-    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4));
-}
-
-.seal-ring {
-    position: absolute;
-    inset: 4px;
-    border: 1.5px dashed rgba(255, 215, 0, 0.65);
-    border-radius: 50%;
-}
-
-.envelope-letter {
-    position: absolute;
-    bottom: 15px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 90%;
-    background: var(--paper-bg);
-    border-radius: 8px;
-    padding: 16px 20px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    z-index: 2;
-    transition: transform 0.8s cubic-bezier(0.34, 1.2, 0.64, 1), opacity 0.4s ease;
-    font-family: var(--font-handwriting);
-    text-align: left;
-    color: #333;
-}
-
-.letter-inner h3 {
-    font-size: 1.2rem;
-    color: #222;
-    margin-bottom: 6px;
-}
-
-.letter-inner p {
-    font-size: 0.95rem;
-    line-height: 1.35;
-    margin-bottom: 6px;
-}
-
-.letter-stamp {
-    position: absolute;
-    top: 10px;
-    right: 12px;
-    font-size: 1.3rem;
-}
-
-.letter-signature {
-    margin-top: 8px;
-    font-size: 0.95rem;
-}
-
-/* Wax Envelope Open State */
-.wax-envelope.open .envelope-flap {
-    transform: rotateX(180deg);
-    z-index: 1;
-}
-
-.wax-envelope.open .wax-seal {
-    transform: translateX(-50%) scale(0);
-    opacity: 0;
-    pointer-events: none;
-}
-
-.wax-envelope.open .envelope-letter {
-    transform: translateX(-50%) translateY(-110px);
-    z-index: 6;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+#envelope {
+    width: min(85vw, 320px);
+    height: auto;
+    margin-bottom: 20px;
+    animation: float-env 3s ease-in-out infinite;
 }
 
 .prompt-text {
@@ -463,13 +340,13 @@ button, .primary-btn, .secondary-btn, .gift-btn, .back-home-btn, .next-page-btn 
     font-weight: bold;
     color: var(--primary-color);
     text-shadow: 0 0 10px rgba(255, 255, 255, 1);
-    background: rgba(255, 255, 255, 0.82);
+    background: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(6px);
-    padding: 10px 24px;
+    padding: 10px 26px;
     border-radius: 50px;
     display: inline-block;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-    margin-top: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+    margin-top: 10px;
 }
 
 #message-content {
@@ -498,7 +375,7 @@ button, .primary-btn, .secondary-btn, .gift-btn, .back-home-btn, .next-page-btn 
     border-radius: 8px;
 }
 
-#timer, #timer-expanded {
+#timer {
     font-weight: bold;
     color: var(--primary-color);
     background-color: rgba(255, 255, 220, 0.85);
@@ -872,20 +749,22 @@ button, .primary-btn, .secondary-btn, .gift-btn, .back-home-btn, .next-page-btn 
 }
 
 .scratch-coupons-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 320px));
+    display: flex;
+    flex-wrap: wrap;
     justify-content: center;
-    gap: 22px;
+    align-items: center;
+    gap: 24px;
     width: 100%;
-    max-width: 1050px;
-    margin: 15px auto;
+    max-width: 1020px;
+    margin: 20px auto;
     z-index: 10;
     box-sizing: border-box;
 }
 
 .coupon-scratch-card {
     position: relative;
-    width: 100%;
+    flex: 0 1 300px;
+    width: 300px;
     max-width: 320px;
     height: 210px;
     border-radius: 16px;
@@ -895,7 +774,7 @@ button, .primary-btn, .secondary-btn, .gift-btn, .back-home-btn, .next-page-btn 
     border: 2px dashed var(--primary-color);
     user-select: none;
     touch-action: none;
-    margin: 0 auto;
+    margin: 0;
     transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
