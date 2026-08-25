@@ -14,11 +14,14 @@
     <!-- Interactive Background Particle Canvas -->
     <canvas id="bg-canvas" aria-hidden="true"></canvas>
 
-    <!-- Top Utility Bar: Ambient Chime & Easter Egg Controls -->
+    <!-- Background Music Player -->
+    <audio id="bg-music" loop preload="auto" src="assets/audio/bgm.mp3"></audio>
+
+    <!-- Top Utility Bar: Music Toggle & Easter Egg Controls -->
     <header class="top-controls" aria-label="Controls">
-        <button id="audio-toggle-btn" class="control-btn" title="Toggle Ambient Audio / Chimes" aria-label="Toggle audio">
-            <span class="control-icon" id="audio-icon">🎵</span>
-            <span class="control-label" id="audio-label">Sound FX: ON</span>
+        <button id="music-toggle" class="control-btn" title="Toggle Background Music" aria-label="Toggle music">
+            <span class="control-icon music-icon">🎵</span>
+            <span class="control-label" id="music-text">Music: ON</span>
         </button>
         <button id="easter-egg-btn" class="control-btn easter-egg-trigger" title="Click for a magical surprise!" aria-label="Surprise effect">
             <span class="control-icon">✨</span>

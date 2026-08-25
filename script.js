@@ -141,103 +141,46 @@ const APP_CONFIG = {
     'use strict';
 
     /* ==========================================================================
-       1. WEB AUDIO SOUND FX & AMBIENT CHIME ENGINE
+       1. BACKGROUND MUSIC PLAYER (LOOPING <audio> ELEMENT)
        ========================================================================== */
-    class SoundEngine {
-        constructor() {
-            this.audioCtx = null;
-            this.enabled = localStorage.getItem('sound_enabled') !== 'false';
-            this.initUI();
-        }
+    const bgMusic = document.getElementById('bg-music');
+    let musicEnabled = localStorage.getItem('music_enabled') !== 'false';
+    let musicStarted = false;
 
-        initContext() {
-            if (!this.audioCtx) {
-                const AudioContext = window.AudioContext || window.webkitAudioContext;
-                if (AudioContext) {
-                    this.audioCtx = new AudioContext();
-                }
-            }
-            if (this.audioCtx && this.audioCtx.state === 'suspended') {
-                this.audioCtx.resume();
-            }
-        }
+    function updateMusicUI() {
+        const icon = document.querySelector('#music-toggle .music-icon');
+        const label = document.getElementById('music-text');
+        if (icon) icon.textContent = musicEnabled ? '🎵' : '🔇';
+        if (label) label.textContent = musicEnabled ? 'Music: ON' : 'Music: OFF';
+    }
 
-        initUI() {
-            const toggleBtn = document.getElementById('audio-toggle-btn');
-            const icon = document.getElementById('audio-icon');
-            const label = document.getElementById('audio-label');
-
-            const updateDisplay = () => {
-                if (icon && label) {
-                    icon.textContent = this.enabled ? '🎵' : '🔇';
-                    label.textContent = this.enabled ? 'Sound FX: ON' : 'Sound FX: OFF';
-                }
-            };
-
-            updateDisplay();
-
-            if (toggleBtn) {
-                toggleBtn.addEventListener('click', () => {
-                    this.enabled = !this.enabled;
-                    localStorage.setItem('sound_enabled', this.enabled ? 'true' : 'false');
-                    updateDisplay();
-                    if (this.enabled) {
-                        this.initContext();
-                        this.playChime([523.25, 659.25, 783.99], 0.08); // C - E - G
-                    }
-                });
-            }
-        }
-
-        playTone(freq, type = 'sine', duration = 0.25, volume = 0.09) {
-            if (!this.enabled) return;
-            try {
-                this.initContext();
-                if (!this.audioCtx) return;
-
-                const osc = this.audioCtx.createOscillator();
-                const gain = this.audioCtx.createGain();
-
-                osc.type = type;
-                osc.frequency.setValueAtTime(freq, this.audioCtx.currentTime);
-
-                gain.gain.setValueAtTime(volume, this.audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, this.audioCtx.currentTime + duration);
-
-                osc.connect(gain);
-                gain.connect(this.audioCtx.destination);
-
-                osc.start();
-                osc.stop(this.audioCtx.currentTime + duration);
-            } catch (e) {
-                // Audio context blocked or unsupported
-            }
-        }
-
-        playChime(notes = [523.25, 659.25, 783.99, 1046.50], delay = 0.07) {
-            if (!this.enabled) return;
-            this.initContext();
-            notes.forEach((note, index) => {
-                setTimeout(() => {
-                    this.playTone(note, 'triangle', 0.35, 0.1);
-                }, index * (delay * 1000));
-            });
-        }
-
-        playPaperSlide() {
-            if (!this.enabled) return;
-            this.playTone(480, 'sine', 0.15, 0.12);
-            setTimeout(() => this.playChime([659.25, 880.00, 1046.50], 0.06), 80);
-        }
-
-        playMagic() {
-            if (!this.enabled) return;
-            const arpeggio = [523.25, 587.33, 659.25, 783.99, 880.00, 1046.50, 1318.51];
-            this.playChime(arpeggio, 0.05);
+    function startMusic() {
+        if (!bgMusic || musicStarted) return;
+        musicStarted = true;
+        if (musicEnabled) {
+            bgMusic.play().catch(() => { /* autoplay blocked, will retry on next interaction */ });
         }
     }
 
-    const sound = new SoundEngine();
+    function toggleMusic() {
+        musicEnabled = !musicEnabled;
+        localStorage.setItem('music_enabled', musicEnabled ? 'true' : 'false');
+        updateMusicUI();
+        if (bgMusic) {
+            if (musicEnabled) {
+                bgMusic.play().catch(() => {});
+            } else {
+                bgMusic.pause();
+            }
+        }
+    }
+
+    updateMusicUI();
+
+    const musicToggleBtn = document.getElementById('music-toggle');
+    if (musicToggleBtn) {
+        musicToggleBtn.addEventListener('click', toggleMusic);
+    }
 
     /* ==========================================================================
        2. OPTIMIZED ZERO-LAG CANVAS PARTICLE ENGINE (60 FPS + POOLING)
@@ -570,8 +513,6 @@ const APP_CONFIG = {
     }
 
     function onScreenEnter(screenId) {
-        sound.playChime([587.33, 659.25, 783.99], 0.06);
-
         if (screenId === 'screen-yay') {
             particleEngine.burst(window.innerWidth / 2, window.innerHeight / 2, 45, 'mixed');
         } else if (screenId === 'screen-moments') {
@@ -711,7 +652,7 @@ const APP_CONFIG = {
         if (envContainer && messageContent && proceedBtn) {
             const rect = envContainer.getBoundingClientRect();
             particleEngine.burst(rect.left + rect.width / 2, rect.top + rect.height / 2, 35, 'sparkle');
-            sound.playPaperSlide();
+            startMusic();
 
             envContainer.style.display = 'none';
             messageContent.style.display = 'flex';
@@ -771,8 +712,6 @@ const APP_CONFIG = {
 
     if (noBtn) {
         noBtn.addEventListener('click', () => {
-            sound.playTone(330, 'sawtooth', 0.2, 0.08);
-
             if (noMessageIndex >= noMessages.length) {
                 goToScreen('screen-no-choice');
                 return;
@@ -794,7 +733,6 @@ const APP_CONFIG = {
     }
 
     function handleYesClick(e) {
-        sound.playMagic();
         const clientX = e ? e.clientX : window.innerWidth / 2;
         const clientY = e ? e.clientY : window.innerHeight / 2;
         particleEngine.burst(clientX, clientY, 50, 'mixed');
@@ -916,7 +854,6 @@ const APP_CONFIG = {
 
                 const isFlipped = card.classList.toggle('flipped');
                 if (isFlipped) {
-                    sound.playChime([659.25, 880.00], 0.07);
                     const rect = card.getBoundingClientRect();
                     particleEngine.burst(rect.left + rect.width / 2, rect.top + rect.height / 2, 18, 'sparkle');
                 }
@@ -935,7 +872,6 @@ const APP_CONFIG = {
             if (tape) {
                 tape.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    sound.playTone(1046.50, 'triangle', 0.25, 0.12);
                     const rect = tape.getBoundingClientRect();
                     particleEngine.burst(rect.left + rect.width / 2, rect.top + rect.height / 2, 14, 'sparkle');
                 });
@@ -948,8 +884,6 @@ const APP_CONFIG = {
     function handlePolaroidReshuffle() {
         const grid = document.getElementById('polaroid-grid');
         if (!grid) return;
-
-        sound.playChime([440.00, 554.37, 659.25], 0.05);
 
         currentPolaroidPage = (currentPolaroidPage + 1) % 3;
         updateReshuffleButton();
@@ -1100,7 +1034,6 @@ const APP_CONFIG = {
                     canvas.style.opacity = '0';
                     canvas.style.pointerEvents = 'none';
 
-                    sound.playMagic();
                     const cardRect = card.getBoundingClientRect();
                     particleEngine.burst(cardRect.left + cardRect.width / 2, cardRect.top + cardRect.height / 2, 25, 'mixed');
 
@@ -1110,7 +1043,6 @@ const APP_CONFIG = {
                         const nextBtn = document.getElementById('coupons-next-btn');
                         if (nextBtn) {
                             nextBtn.style.display = 'inline-block';
-                            sound.playMagic();
                             particleEngine.burst(window.innerWidth / 2, window.innerHeight - 70, 45, 'mixed');
                         }
                     }
@@ -1162,7 +1094,6 @@ const APP_CONFIG = {
         const easterEggBtn = document.getElementById('easter-egg-btn');
         if (easterEggBtn) {
             easterEggBtn.addEventListener('click', (e) => {
-                sound.playMagic();
                 const width = window.innerWidth;
                 const height = window.innerHeight;
                 particleEngine.burst(e.clientX, e.clientY, 30, 'heart');
@@ -1179,7 +1110,6 @@ const APP_CONFIG = {
                 void cat.offsetWidth; // Force CSS reflow to retrigger animation
                 cat.classList.add('bouncing');
 
-                sound.playMagic();
                 const rect = cat.getBoundingClientRect();
                 particleEngine.burst(rect.left + rect.width / 2, rect.top + rect.height / 2, 20, 'heart');
             });
@@ -1189,7 +1119,6 @@ const APP_CONFIG = {
         document.querySelectorAll('#togepi-gif, #togepi-angry-gif, #yay-gif').forEach(img => {
             img.style.cursor = 'pointer';
             img.addEventListener('click', (e) => {
-                sound.playTone(880, 'sine', 0.2, 0.08);
                 particleEngine.burst(e.clientX, e.clientY, 15, 'sparkle');
             });
         });
