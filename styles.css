@@ -19,19 +19,19 @@ body {
     padding: 75px 0;
     background-image: url("heart-bg.jpg"); 
     background-size: cover;
-    font-family: "Steph", sans-serif;
+    font-family: "CustomFont", sans-serif;
     position: relative;
 }
 
 @font-face {
-    font-family: "Steph";
-    src: url("assets/fonts/steph-font.ttf");
+    font-family: "CustomFont";
+    src: url("assets/fonts/custom-font.ttf");
     font-weight: normal;
 }
 
 @font-face {
-    font-family: "Steph";
-    src: url("assets/fonts/steph-font-bold.ttf");
+    font-family: "CustomFont";
+    src: url("assets/fonts/custom-font-bold.ttf");
     font-weight: bold;
 }
 
