@@ -529,8 +529,8 @@ const APP_CONFIG = {
         'question': 'screen-question',
         'no-choice': 'screen-no-choice',
         'yay': 'screen-yay',
-        'coupons': 'screen-coupons',
         'letter': 'screen-letter',
+        'coupons': 'screen-coupons',
         'final': 'screen-final'
     };
 
@@ -810,14 +810,14 @@ const APP_CONFIG = {
     const yayNextBtn = document.getElementById('yay-next-btn');
     if (yayNextBtn) {
         yayNextBtn.addEventListener('click', () => {
-            goToScreen('screen-coupons');
+            goToScreen('screen-letter');
         });
     }
 
     const letterNextBtn = document.getElementById('letter-next-btn');
     if (letterNextBtn) {
         letterNextBtn.addEventListener('click', () => {
-            goToScreen('screen-final');
+            goToScreen('screen-coupons');
         });
     }
 
@@ -1150,7 +1150,7 @@ const APP_CONFIG = {
     const couponsNextBtn = document.getElementById('coupons-next-btn');
     if (couponsNextBtn) {
         couponsNextBtn.addEventListener('click', () => {
-            goToScreen('screen-letter');
+            goToScreen('screen-final');
         });
     }
 
