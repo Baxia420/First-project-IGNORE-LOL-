@@ -1,10 +1,163 @@
 /**
  * ==========================================================================
- * ROMANTIC SINGLE-PAGE APPLICATION - PHASE 2 SCRIPT
- * High-performance 60 FPS Canvas Particle Engine, Interactive Scratch Cards,
- * 3D Polaroid Memory Flip Gallery, and Physics Wax Seal Controller.
+ * ROMANTIC SINGLE-PAGE APPLICATION - PHASE 3 SCRIPT
+ * Centralized Content Configuration, Polaroid Image Pipeline & Easter Eggs
  * ==========================================================================
  */
+
+/* ==========================================================================
+   GLOBAL APPLICATION CONFIGURATION (CUSTOMIZE ALL CONTENT HERE)
+   ========================================================================== */
+const APP_CONFIG = {
+    // 1. Anniversary / First Met Date for Live Counter (Year, Month [0-indexed], Day, Hour, Min, Sec)
+    startDate: new Date(2024, 0, 10, 22, 25, 0),
+
+    // 2. Intro Envelope Note
+    introLetter: {
+        salutation: "Dearest [Name],",
+        body: "Ever since we first met, {TIMER} ago, my world has been so much brighter. I wanted to make you this special website to ask perhaps the most important question of your life.",
+        signOff: "Love always,\n[Name]"
+    },
+
+    // 3. 3D Polaroid Memories (9 Moments with 3 displayed per shuffle)
+    moments: [
+        {
+            id: 1,
+            image: "assets/images/moments/moment-1.jpg",
+            title: "Our First Date",
+            date: "October 14, 2024",
+            story: "The moment we sat down and talked for hours without noticing time flying by.",
+            badge: "Chapter 1"
+        },
+        {
+            id: 2,
+            image: "assets/images/moments/moment-2.jpg",
+            title: "Coffee & Long Walks",
+            date: "November 2, 2024",
+            story: "Holding hands in the cold with our favorite warm drinks.",
+            badge: "Chapter 2"
+        },
+        {
+            id: 3,
+            image: "assets/images/moments/moment-3.jpg",
+            title: "Late Night Talks",
+            date: "November 18, 2024",
+            story: "Talking about our wildest dreams and laughing until our stomachs hurt.",
+            badge: "Chapter 3"
+        },
+        {
+            id: 4,
+            image: "assets/images/moments/moment-4.jpg",
+            title: "Spontaneous Adventures",
+            date: "December 5, 2024",
+            story: "Exploring new places together and getting lost in the best ways.",
+            badge: "Chapter 4"
+        },
+        {
+            id: 5,
+            image: "assets/images/moments/moment-5.jpg",
+            title: "Cozy Movie Marathon",
+            date: "December 22, 2024",
+            story: "Blankets, snacks, and arguing playfully about what movie to watch next.",
+            badge: "Chapter 5"
+        },
+        {
+            id: 6,
+            image: "assets/images/moments/moment-6.jpg",
+            title: "Cooking Together",
+            date: "January 8, 2025",
+            story: "Making a delicious mess in the kitchen and tasting everything twice.",
+            badge: "Chapter 6"
+        },
+        {
+            id: 7,
+            image: "assets/images/moments/moment-7.jpg",
+            title: "Starry Night Drive",
+            date: "January 25, 2025",
+            story: "Windows down, singing along to our favorite songs under the night stars.",
+            badge: "Chapter 7"
+        },
+        {
+            id: 8,
+            image: "assets/images/moments/moment-8.jpg",
+            title: "Inside Jokes & Giggles",
+            date: "February 7, 2025",
+            story: "When one look across the room was enough to make both of us burst into laughter.",
+            badge: "Chapter 8"
+        },
+        {
+            id: 9,
+            image: "assets/images/moments/moment-9.jpg",
+            title: "Quiet Companionship",
+            date: "February 14, 2025",
+            story: "Every calm, sweet second spent simply being in each other's warm presence.",
+            badge: "Chapter 9"
+        }
+    ],
+
+    // 4. Scratch-Off Vouchers
+    vouchers: [
+        {
+            id: 1,
+            title: "Get Out of an Argument",
+            description: "Valid for one instant win during any disagreement. No questions asked!",
+            uses: "1",
+            badge: "🕊️"
+        },
+        {
+            id: 2,
+            title: "Late Night Food Run",
+            description: "Good for one spontaneous 2 AM snack trip to wherever you want.",
+            uses: "Unlimited",
+            badge: "🍟"
+        },
+        {
+            id: 3,
+            title: "Unlimited Warm Hugs",
+            description: "Redeemable anytime for a long, tight hug when you need it most.",
+            uses: "Infinity",
+            badge: "🤗"
+        },
+        {
+            id: 4,
+            title: "Movie Choice Night",
+            description: "You get total control of the remote and movie pick, plus popcorn!",
+            uses: "3",
+            badge: "🎬"
+        },
+        {
+            id: 5,
+            title: "Full Massage & Pamper",
+            description: "30 minutes of head, back, or foot massage to melt away stress.",
+            uses: "2",
+            badge: "💆"
+        }
+    ],
+
+    // 5. Final Double-Page Letter
+    finalLetter: {
+        salutation: "Dearest [Name],",
+        page1: [
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+            "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        ],
+        page2: [
+            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+            "P.S. I love you more than words could ever describe."
+        ],
+        signOff: "Yours forever and evermore,\n[Name]"
+    },
+
+    // 6. Outro Screen
+    finalOutro: {
+        paragraphs: [
+            "Thank you for taking the time to explore this website. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
+            "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
+            "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+        ],
+        buttonText: "Go back to start ♡"
+    }
+};
 
 (function () {
     'use strict';
@@ -131,7 +284,6 @@
                 this.resize();
             });
 
-            // Pointer event listeners
             window.addEventListener('mousemove', (e) => {
                 this.mouse.x = e.clientX;
                 this.mouse.y = e.clientY;
@@ -156,7 +308,6 @@
                 this.mouse.active = false;
             });
 
-            // Visibility optimization (sleep loop when tab hidden)
             document.addEventListener('visibilitychange', () => {
                 this.isRunning = !document.hidden;
                 if (this.isRunning) {
@@ -164,7 +315,6 @@
                 }
             });
 
-            // Populate initial ambient particles
             for (let i = 0; i < this.maxAmbientParticles; i++) {
                 this.particles.push(this.spawnAmbientParticle(true));
             }
@@ -174,7 +324,7 @@
         }
 
         resize() {
-            const dpr = Math.min(window.devicePixelRatio || 1, 2); // Cap at 2x DPR to save mobile GPU
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
             this.width = window.innerWidth;
             this.height = window.innerHeight;
             this.canvas.width = this.width * dpr;
@@ -199,13 +349,12 @@
             p.x = Math.random() * this.width;
             p.y = randomY ? Math.random() * this.height : this.height + Math.random() * 40;
             p.size = isHeart ? Math.random() * 9 + 6 : Math.random() * 3.5 + 2;
-            // Drastically reduced vertical drift speed for a gentle, relaxing float:
-            p.speedY = -(Math.random() * 0.35 + 0.2); // ~0.2 to 0.55 px per frame
+            p.speedY = -(Math.random() * 0.35 + 0.2); // Gentle relaxing float
             p.speedX = 0;
             p.baseSpeedX = (Math.random() - 0.5) * 0.12;
             p.angle = Math.random() * Math.PI * 2;
-            p.angleSpeed = Math.random() * 0.008 + 0.003; // slow, gentle wave
-            p.oscillationAmp = Math.random() * 0.5 + 0.2; // subtle amplitude
+            p.angleSpeed = Math.random() * 0.008 + 0.003;
+            p.oscillationAmp = Math.random() * 0.5 + 0.2;
             p.color = this.colors[Math.floor(Math.random() * this.colors.length)];
             p.alpha = Math.random() * 0.4 + 0.22;
             p.isBurst = false;
@@ -306,7 +455,6 @@
                 const p = this.particles[i];
 
                 if (p.isBurst) {
-                    // Burst particle physics
                     p.x += p.speedX;
                     p.y += p.speedY;
                     p.speedX *= p.friction;
@@ -328,13 +476,11 @@
                         this.particles.splice(i, 1);
                     }
                 } else {
-                    // Ambient particle physics - slow & gentle float
                     p.angle += p.angleSpeed;
                     p.x += Math.sin(p.angle) * p.oscillationAmp + p.baseSpeedX + p.speedX;
                     p.y += p.speedY;
-                    p.speedX *= 0.94; // smooth decay
+                    p.speedX *= 0.94;
 
-                    // Gentle mouse repulsion (squared distance check)
                     if (this.mouse.active) {
                         const dx = p.x - this.mouse.x;
                         const dy = p.y - this.mouse.y;
@@ -354,7 +500,6 @@
                         this.drawSparkle(p.x, p.y, p.size, p.color, p.alpha);
                     }
 
-                    // Recycle particle if it floats off the top
                     if (p.y < -25) {
                         this.releaseParticleToPool(p);
                         this.particles[i] = this.spawnAmbientParticle(false);
@@ -362,7 +507,6 @@
                 }
             }
 
-            // Keep ambient pool filled
             const ambientCount = this.particles.filter(p => !p.isBurst).length;
             if (ambientCount < this.maxAmbientParticles) {
                 this.particles.push(this.spawnAmbientParticle(false));
@@ -448,9 +592,77 @@
     window.addEventListener('hashchange', handleHashChange);
 
     /* ==========================================================================
-       4. SCREEN 1: INTRO & ENVELOPE CONTROLLER
+       4. DYNAMIC CONTENT RENDERING PIPELINE (POPULATE FROM APP_CONFIG)
        ========================================================================== */
-    const startDate = new Date("January 10, 2026 22:25:00").getTime();
+    function renderDynamicContent() {
+        // 1. Populate Intro Letter Paper
+        const introPaper = document.getElementById('intro-letter-paper');
+        if (introPaper && APP_CONFIG.introLetter) {
+            const salutation = APP_CONFIG.introLetter.salutation || 'Dearest,';
+            const bodyText = (APP_CONFIG.introLetter.body || '').replace('{TIMER}', '<span id="timer">Calculating...</span>');
+            const signOff = (APP_CONFIG.introLetter.signOff || '').replace(/\n/g, '<br>');
+
+            introPaper.innerHTML = `
+                <p>
+                    ${salutation}
+                    <br><br>
+                    ${bodyText}
+                    <br><br>
+                    ${signOff}
+                </p>
+            `;
+        }
+
+        // 2. Populate Final Double-Page Letter
+        const letterWrapper = document.getElementById('letter-dual-wrapper');
+        if (letterWrapper && APP_CONFIG.finalLetter) {
+            const page1Paragraphs = (APP_CONFIG.finalLetter.page1 || []).map(p => `<p>${p}</p>`).join('');
+            const page2Paragraphs = (APP_CONFIG.finalLetter.page2 || []).map(p => `<p>${p}</p>`).join('');
+            const signOff = (APP_CONFIG.finalLetter.signOff || '').replace(/\n/g, '<br>');
+
+            letterWrapper.innerHTML = `
+                <!-- Page 1 -->
+                <article class="letter-page page-1">
+                    <header>
+                        <h2>${APP_CONFIG.finalLetter.salutation || 'Dearest,'}</h2>
+                    </header>
+                    ${page1Paragraphs}
+                    <footer class="turn-page-note">(Letter continues on right...)</footer>
+                </article>
+
+                <!-- Page 2 -->
+                <article class="letter-page page-2">
+                    ${page2Paragraphs}
+                    <p class="letter-signoff">
+                        ${signOff}
+                    </p>
+                </article>
+            `;
+        }
+
+        // 3. Populate Final Outro Screen
+        const outroBox = document.getElementById('final-letter-box');
+        if (outroBox && APP_CONFIG.finalOutro) {
+            const paragraphs = (APP_CONFIG.finalOutro.paragraphs || []).map(p => `<p>${p}</p>`).join('');
+            outroBox.innerHTML = `
+                ${paragraphs}
+                <button id="final-restart-btn" class="back-home-btn">
+                    ${APP_CONFIG.finalOutro.buttonText || 'Go back to start ♡'}
+                </button>
+            `;
+
+            const finalRestartBtn = document.getElementById('final-restart-btn');
+            if (finalRestartBtn) {
+                finalRestartBtn.addEventListener('click', () => {
+                    goToScreen('screen-intro');
+                });
+            }
+        }
+    }
+
+    /* ==========================================================================
+       5. SCREEN 1: INTRO & LIVE COUNTER CONTROLLER
+       ========================================================================== */
     let timerInterval = null;
     let envelopeOpened = false;
 
@@ -459,7 +671,8 @@
         if (!timerElement) return;
 
         const now = new Date().getTime();
-        const distance = now - startDate;
+        const start = APP_CONFIG.startDate ? APP_CONFIG.startDate.getTime() : new Date("January 10, 2026 22:25:00").getTime();
+        const distance = now - start;
 
         let timeStr = "a little while";
         if (distance >= 0) {
@@ -484,7 +697,7 @@
         if (envContainer && messageContent && proceedBtn) {
             const rect = envContainer.getBoundingClientRect();
             particleEngine.burst(rect.left + rect.width / 2, rect.top + rect.height / 2, 35, 'sparkle');
-            sound.playMagic();
+            sound.playPaperSlide();
 
             envContainer.style.display = 'none';
             messageContent.style.display = 'flex';
@@ -516,7 +729,7 @@
     }
 
     /* ==========================================================================
-       5. SCREEN 2 & 3: QUESTION & NO-CHOICE LOGIC
+       6. SCREEN 2 & 3: QUESTION & NO-CHOICE LOGIC
        ========================================================================== */
     const noMessages = [
         "Are you sure?",
@@ -578,7 +791,7 @@
     if (noChoiceYesBtn) noChoiceYesBtn.addEventListener('click', handleYesClick);
 
     /* ==========================================================================
-       6. SCREEN 4 & 5: YAY CELEBRATION & DOUBLE-PAGE LETTER
+       7. SCREEN 4 & 5: CELEBRATION & DOUBLE-PAGE NAVIGATION
        ========================================================================== */
     const yayNextBtn = document.getElementById('yay-next-btn');
     if (yayNextBtn) {
@@ -595,22 +808,8 @@
     }
 
     /* ==========================================================================
-       7. SCREEN 6: 3D POLAROID MEMORY FLIP GALLERY
+       8. SCREEN 6: 3D POLAROID MEMORY GALLERY & IMAGE PIPELINE
        ========================================================================== */
-    const allMemories = [
-        "Our first conversation and laughing together all evening.",
-        "The time we spent hours talking about our favorite music and movies.",
-        "That unforgettable spontaneous walk under the city lights.",
-        "Sharing our favorite childhood stories and silly memories.",
-        "The cozy afternoon we spent drinking coffee and talking about everything.",
-        "When we couldn't stop laughing at that ridiculous inside joke.",
-        "Planning our dream trips and places we want to explore together.",
-        "Cooking together and making a huge mess in the kitchen.",
-        "Every quiet moment spent together just enjoying each other's company."
-    ];
-
-    const polaroidIcons = ['🌸', '✨', '☕', '🌟', '🎶', '💌', '🧸', '🍰', '🎈'];
-
     let shuffledMoments = [];
     let momentIndex = 0;
     let reshufflesLeft = 0;
@@ -629,9 +828,10 @@
         if (momentsInitialized) return;
         momentsInitialized = true;
 
-        shuffledMoments = shuffleArray(allMemories);
+        const momentsList = APP_CONFIG.moments && APP_CONFIG.moments.length > 0 ? APP_CONFIG.moments : [];
+        shuffledMoments = shuffleArray(momentsList);
         momentIndex = 0;
-        reshufflesLeft = Math.ceil(allMemories.length / 3) - 1;
+        reshufflesLeft = Math.max(0, Math.ceil(shuffledMoments.length / 3) - 1);
 
         const counter = document.getElementById('counter');
         if (counter) counter.innerText = `Shuffles left: ${reshufflesLeft}`;
@@ -647,39 +847,47 @@
         const currentSet = shuffledMoments.slice(momentIndex, momentIndex + 3);
         momentIndex += 3;
 
-        currentSet.forEach((memory, idx) => {
-            const globalIndex = momentIndex - 3 + idx + 1;
-            const randomRotation = (Math.random() * 4 - 2).toFixed(1); // -2deg to +2deg
-            const randomIcon = polaroidIcons[(globalIndex - 1) % polaroidIcons.length];
+        currentSet.forEach((moment, idx) => {
+            const globalIndex = moment.id || (momentIndex - 3 + idx + 1);
+            const randomRotation = (Math.random() * 3.6 - 1.8).toFixed(1); // Organic subtle tilt
 
             const card = document.createElement('div');
             card.className = 'polaroid-card';
             card.style.transform = `rotate(${randomRotation}deg)`;
             card.setAttribute('role', 'button');
             card.setAttribute('tabindex', '0');
-            card.setAttribute('aria-label', `Polaroid photo ${globalIndex}: Tap to flip`);
+            card.setAttribute('aria-label', `Polaroid photo: ${moment.title}`);
 
             card.innerHTML = `
                 <div class="polaroid-inner">
                     <div class="polaroid-front">
-                        <div class="washi-tape"></div>
+                        <div class="washi-tape" title="Touch washi tape for a sparkle! ✨"></div>
                         <div class="polaroid-photo-frame">
-                            <div class="polaroid-emoji">${randomIcon}</div>
-                            <span class="polaroid-tap-hint">Tap to Flip ♡</span>
+                            <!-- Graceful Image Pipeline with Fallback -->
+                            <img src="${moment.image}" class="polaroid-img" alt="${moment.title}" onerror="this.classList.add('img-error')">
+                            <div class="polaroid-placeholder">
+                                <div class="polaroid-emoji">📷</div>
+                                <div class="placeholder-title">${moment.title}</div>
+                                <span class="polaroid-tap-hint">Tap to Flip ♡</span>
+                            </div>
                         </div>
-                        <div class="polaroid-caption">Memory #${globalIndex}</div>
+                        <div class="polaroid-caption">${moment.title}</div>
                     </div>
                     <div class="polaroid-back">
                         <div class="polaroid-stamp">
-                            <span>Chapter #${globalIndex}</span>
-                            <span>♡ Secret Note</span>
+                            <span>${moment.badge || `Chapter #${globalIndex}`}</span>
+                            <span>📅 ${moment.date || 'Special Memory'}</span>
                         </div>
-                        <p>${memory}</p>
+                        <p>${moment.story}</p>
                     </div>
                 </div>
             `;
 
-            const toggleFlip = () => {
+            // Card Flip Event
+            const toggleFlip = (e) => {
+                // If user clicked the washi tape, trigger easter egg instead of flip
+                if (e.target.closest('.washi-tape')) return;
+
                 const isFlipped = card.classList.toggle('flipped');
                 if (isFlipped) {
                     sound.playChime([659.25, 880.00], 0.07);
@@ -692,9 +900,20 @@
             card.onkeydown = (e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
-                    toggleFlip();
+                    toggleFlip(e);
                 }
             };
+
+            // Easter Egg: Washi Tape Sparkle Interaction
+            const tape = card.querySelector('.washi-tape');
+            if (tape) {
+                tape.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    sound.playTone(1046.50, 'triangle', 0.25, 0.12);
+                    const rect = tape.getBoundingClientRect();
+                    particleEngine.burst(rect.left + rect.width / 2, rect.top + rect.height / 2, 14, 'sparkle');
+                });
+            }
 
             grid.appendChild(card);
         });
@@ -714,7 +933,7 @@
 
             grid.style.animation = "boxFadeOut 0.6s forwards";
             setTimeout(() => {
-                grid.innerHTML = '<div class="final-letter-box" style="margin: 20px auto;"><p>✨ You have explored all the memories! More unforgettable chapters await ahead. ♡</p></div>';
+                grid.innerHTML = '<div class="final-letter-box" style="margin: 20px auto;"><p>✨ You have explored all our favorite memories! More unforgettable chapters await ahead. ♡</p></div>';
                 grid.style.animation = "fadeIn 0.6s forwards";
             }, 600);
             return;
@@ -736,41 +955,8 @@
     }
 
     /* ==========================================================================
-       8. SCREEN 7: INTERACTIVE HTML5 SCRATCH-OFF VOUCHERS
+       9. SCREEN 7: INTERACTIVE HTML5 SCRATCH-OFF VOUCHERS
        ========================================================================== */
-    const couponData = [
-        {
-            title: "\"Get Out of an Argument\" Coupon",
-            description: "Can be used to immediately end a minor disagreement and move on without further discussion.",
-            uses: "2",
-            badge: "🕊️"
-        },
-        {
-            title: "\"Hugs Hugs Hugs\" Coupon",
-            description: "A hug, for you, anytime, anywhere, any moment.",
-            uses: "Unlimited",
-            badge: "🤗"
-        },
-        {
-            title: "\"Ask me anything\" Coupon",
-            description: "You get to ask me a question, ANY QUESTION. I will have to answer completely honestly.",
-            uses: "2",
-            badge: "💬"
-        },
-        {
-            title: "\"Can we eat?\" Coupon",
-            description: "We eat whatever you feel like eating, wherever it is, and whatever the price. No objections or vetoes allowed!",
-            uses: "2",
-            badge: "🍣"
-        },
-        {
-            title: "\"Get out of jail\" Coupon",
-            description: "Made me angry/upset for whatever reason? Use this voucher to instantly make me okay again.<br><br><strong>NOTE:</strong> Silly mistakes only!",
-            uses: "1",
-            badge: "🗝️"
-        }
-    ];
-
     const scratchedCouponSet = new Set();
     let scratchCouponsInitialized = false;
 
@@ -782,14 +968,16 @@
         const nextBtn = document.getElementById('coupons-next-btn');
         if (!grid) return;
 
-        couponData.forEach((coupon, index) => {
+        const voucherList = APP_CONFIG.vouchers && APP_CONFIG.vouchers.length > 0 ? APP_CONFIG.vouchers : [];
+
+        voucherList.forEach((coupon, index) => {
             const card = document.createElement('div');
             card.className = 'coupon-scratch-card';
             card.id = `scratch-card-${index}`;
 
             card.innerHTML = `
                 <div class="coupon-reward">
-                    <span class="reward-badge">${coupon.badge}</span>
+                    <span class="reward-badge">${coupon.badge || '🎟️'}</span>
                     <div class="reward-title">${coupon.title}</div>
                     <div class="reward-desc">${coupon.description}</div>
                     <div class="reward-uses">Uses: ${coupon.uses}</div>
@@ -799,13 +987,11 @@
             `;
 
             grid.appendChild(card);
-
-            // Initialize Scratch Canvas
-            setupScratchCanvas(card, index);
+            setupScratchCanvas(card, index, voucherList.length);
         });
     }
 
-    function setupScratchCanvas(card, index) {
+    function setupScratchCanvas(card, index, totalVouchers) {
         const canvas = card.querySelector('.scratch-canvas');
         if (!canvas) return;
 
@@ -817,7 +1003,7 @@
         canvas.width = width;
         canvas.height = height;
 
-        // Draw foil coating (pastel shimmer gradient)
+        // Pastel foil gradient
         const grad = ctx.createLinearGradient(0, 0, width, height);
         grad.addColorStop(0, '#ff9ebb');
         grad.addColorStop(0.5, '#ff8da1');
@@ -825,8 +1011,8 @@
         ctx.fillStyle = grad;
         ctx.fillRect(0, 0, width, height);
 
-        // Add subtle patterned sparkles on foil
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+        // Patterned sparkle stars
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
         for (let i = 0; i < 18; i++) {
             const sx = Math.random() * width;
             const sy = Math.random() * height;
@@ -835,7 +1021,7 @@
             ctx.fill();
         }
 
-        // Draw decorative banner text
+        // Decorative foil text
         ctx.font = 'bold 15px "CustomFont", "Nunito", sans-serif';
         ctx.fillStyle = 'white';
         ctx.textAlign = 'center';
@@ -845,7 +1031,7 @@
         ctx.fillText('✨ SPECIAL VOUCHER ✨', width / 2, height / 2 - 12);
         ctx.font = '12px "CustomFont", "Nunito", sans-serif';
         ctx.fillText('(Scratch to Uncover)', width / 2, height / 2 + 12);
-        ctx.shadowBlur = 0; // reset shadow
+        ctx.shadowBlur = 0;
 
         let isDrawing = false;
         let isScratched = false;
@@ -875,10 +1061,9 @@
             if (isScratched) return;
 
             try {
-                // High-performance stride sampling
                 const imgData = ctx.getImageData(0, 0, width, height);
                 const data = imgData.data;
-                const stride = 32; // check every 8th pixel (4 bytes each)
+                const stride = 32; // check every 8th pixel
                 let clearedPixels = 0;
                 let totalSamples = 0;
 
@@ -903,7 +1088,7 @@
 
                     scratchedCouponSet.add(index);
 
-                    if (scratchedCouponSet.size === couponData.length) {
+                    if (scratchedCouponSet.size === totalVouchers) {
                         const nextBtn = document.getElementById('coupons-next-btn');
                         if (nextBtn) {
                             nextBtn.style.display = 'inline-block';
@@ -913,11 +1098,10 @@
                     }
                 }
             } catch (err) {
-                // Ignore canvas sampling security errors if local file
+                // Ignore canvas sampling security errors if local file protocol
             }
         }
 
-        // Pointer & Touch Event Listeners
         const startScratch = (e) => {
             isDrawing = true;
             scratch(e);
@@ -953,43 +1137,52 @@
     }
 
     /* ==========================================================================
-       9. SCREEN 8: FINAL OUTRO & RESTART
+       10. EASTER EGGS & MICRO-INTERACTIONS
        ========================================================================== */
-    const finalRestartBtn = document.getElementById('final-restart-btn');
-    if (finalRestartBtn) {
-        finalRestartBtn.addEventListener('click', () => {
-            goToScreen('screen-intro');
+    function initEasterEggs() {
+        // Top Surprise Button
+        const easterEggBtn = document.getElementById('easter-egg-btn');
+        if (easterEggBtn) {
+            easterEggBtn.addEventListener('click', (e) => {
+                sound.playMagic();
+                const width = window.innerWidth;
+                const height = window.innerHeight;
+                particleEngine.burst(e.clientX, e.clientY, 30, 'heart');
+                setTimeout(() => particleEngine.burst(width * 0.3, height * 0.35, 25, 'sparkle'), 120);
+                setTimeout(() => particleEngine.burst(width * 0.7, height * 0.35, 25, 'mixed'), 240);
+            });
+        }
+
+        // Bouncy Pixel Cats Easter Egg
+        const cats = document.querySelectorAll('.easter-egg-cat');
+        cats.forEach(cat => {
+            cat.addEventListener('click', (e) => {
+                cat.classList.remove('bouncing');
+                void cat.offsetWidth; // Force CSS reflow to retrigger animation
+                cat.classList.add('bouncing');
+
+                sound.playMagic();
+                const rect = cat.getBoundingClientRect();
+                particleEngine.burst(rect.left + rect.width / 2, rect.top + rect.height / 2, 20, 'heart');
+            });
+        });
+
+        // Togepi & Pikachu GIFs Tap Feedback
+        document.querySelectorAll('#togepi-gif, #togepi-angry-gif, #yay-gif').forEach(img => {
+            img.style.cursor = 'pointer';
+            img.addEventListener('click', (e) => {
+                sound.playTone(880, 'sine', 0.2, 0.08);
+                particleEngine.burst(e.clientX, e.clientY, 15, 'sparkle');
+            });
         });
     }
-
-    /* ==========================================================================
-       10. EASTER EGGS & INTERACTIVE POLISH
-       ========================================================================== */
-    const easterEggBtn = document.getElementById('easter-egg-btn');
-    if (easterEggBtn) {
-        easterEggBtn.addEventListener('click', (e) => {
-            sound.playMagic();
-            const width = window.innerWidth;
-            const height = window.innerHeight;
-            particleEngine.burst(e.clientX, e.clientY, 30, 'heart');
-            setTimeout(() => particleEngine.burst(width * 0.3, height * 0.35, 25, 'sparkle'), 120);
-            setTimeout(() => particleEngine.burst(width * 0.7, height * 0.35, 25, 'mixed'), 240);
-        });
-    }
-
-    // Attach mini-sparkles to GIFs & interactive elements
-    document.querySelectorAll('.side-cat, #togepi-gif, #togepi-angry-gif, #yay-gif').forEach(img => {
-        img.style.cursor = 'pointer';
-        img.addEventListener('click', (e) => {
-            sound.playTone(880, 'sine', 0.2, 0.08);
-            particleEngine.burst(e.clientX, e.clientY, 15, 'sparkle');
-        });
-    });
 
     /* ==========================================================================
        11. INITIALIZATION ON DOM READY
        ========================================================================== */
     document.addEventListener('DOMContentLoaded', () => {
+        renderDynamicContent();
+        initEasterEggs();
         handleHashChange();
     });
 

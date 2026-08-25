@@ -41,9 +41,9 @@
 
                 <!-- Expanded Letter View (Smoothly Revealed) -->
                 <div id="message-content" style="display: none;">
-                    <img src="assets/images/cat_heart.gif" class="side-cat" alt="Cute heart cat">
+                    <img src="assets/images/cat_heart.gif" class="side-cat easter-egg-cat" id="cat-heart" alt="Cute heart cat" title="Click me! ♡">
                     
-                    <div class="letter-paper">
+                    <div class="letter-paper" id="intro-letter-paper">
                         <p>
                             Dearest [Name],
                             <br><br>
@@ -57,7 +57,7 @@
                         </p>
                     </div>
 
-                    <img src="assets/images/cat_dance.gif" class="side-cat dancing-kitty" alt="Dancing cat">
+                    <img src="assets/images/cat_dance.gif" class="side-cat dancing-kitty easter-egg-cat" id="cat-dance" alt="Dancing cat" title="Click me! ♫">
                 </div>
 
                 <button id="intro-proceed-btn" class="primary-btn" style="display: none;">
@@ -117,35 +117,8 @@
         <!-- ==================== SCREEN 5: BALANCED DOUBLE-PAGE LETTER ==================== -->
         <section id="screen-letter" class="app-screen">
             <div class="letter-layout-container">
-                <div class="letter-dual-wrapper">
-                    <!-- Page 1 -->
-                    <article class="letter-page page-1">
-                        <header>
-                            <h2>Dearest [Name],</h2>
-                        </header>
-                        <p>
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                        </p>
-                        <p>
-                            Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                        </p>
-                        
-                        <footer class="turn-page-note">(Letter continues on right...)</footer>
-                    </article>
-
-                    <!-- Page 2 -->
-                    <article class="letter-page page-2">
-                        <p>
-                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-                        </p>
-                        <p>
-                            P.S. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                        </p>
-                        <p class="letter-signoff">
-                            Yours forever and evermore,<br><br>
-                            <strong>[Name]</strong>
-                        </p>
-                    </article>
+                <div class="letter-dual-wrapper" id="letter-dual-wrapper">
+                    <!-- Page 1 & Page 2 populated dynamically from APP_CONFIG.finalLetter -->
                 </div>
 
                 <div class="letter-nav">
@@ -198,19 +171,8 @@
 
         <!-- ==================== SCREEN 8: FINAL OUTRO NOTE ==================== -->
         <section id="screen-final" class="app-screen">
-            <div class="final-letter-box">
-                <p>
-                    Thank you for taking the time to explore this website. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                </p>
-                <p>
-                    Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-                </p>
-                <p>
-                    Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-                </p>
-                <button id="final-restart-btn" class="back-home-btn">
-                    Go back to start ♡
-                </button>
+            <div class="final-letter-box" id="final-letter-box">
+                <!-- Populated dynamically from APP_CONFIG.finalOutro -->
             </div>
         </section>
 

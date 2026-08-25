@@ -392,6 +392,27 @@ button, .primary-btn, .secondary-btn, .gift-btn, .back-home-btn, .next-page-btn 
     margin-top: -40px;
 }
 
+@keyframes cat-bounce {
+    0% { transform: scale(1) rotate(0deg); }
+    25% { transform: scale(1.25) rotate(-10deg); }
+    50% { transform: scale(1.15) rotate(10deg); }
+    75% { transform: scale(1.2) rotate(-5deg); }
+    100% { transform: scale(1) rotate(0deg); }
+}
+
+.easter-egg-cat {
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.easter-egg-cat:hover {
+    transform: scale(1.08);
+}
+
+.easter-egg-cat.bouncing {
+    animation: cat-bounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
 /* ==========================================================================
    SCREEN 2, 3 & 4: QUESTION, NO-CHOICE, YAY
    ========================================================================== */
@@ -602,6 +623,13 @@ button, .primary-btn, .secondary-btn, .gift-btn, .back-home-btn, .next-page-btn 
     border-left: 2px dashed rgba(255, 255, 255, 0.7);
     border-right: 2px dashed rgba(255, 255, 255, 0.7);
     z-index: 10;
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.washi-tape:hover {
+    transform: translateX(-50%) rotate(-2deg) scale(1.08);
+    background: rgba(255, 160, 175, 0.9);
 }
 
 .polaroid-photo-frame {
@@ -618,19 +646,61 @@ button, .primary-btn, .secondary-btn, .gift-btn, .back-home-btn, .next-page-btn 
     position: relative;
 }
 
+.polaroid-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    transition: opacity 0.3s ease;
+}
+
+.polaroid-img.img-error {
+    display: none;
+}
+
+.polaroid-placeholder {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #fff0f3 0%, #ffe4e8 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    box-sizing: border-box;
+    z-index: 1;
+    text-align: center;
+}
+
 .polaroid-emoji {
-    font-size: 3.5rem;
-    margin-bottom: 5px;
+    font-size: 3.2rem;
+    margin-bottom: 4px;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+}
+
+.placeholder-title {
+    font-family: var(--font-heading);
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 6px;
+    line-height: 1.2;
 }
 
 .polaroid-tap-hint {
     font-family: var(--font-heading);
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     color: var(--primary-color);
     font-weight: bold;
-    background: rgba(255, 255, 255, 0.85);
-    padding: 4px 12px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 3px 10px;
     border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
 }
 
 .polaroid-caption {
