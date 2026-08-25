@@ -989,6 +989,13 @@ button, .primary-btn, .secondary-btn, .gift-btn, .back-home-btn, .next-page-btn 
     margin-bottom: 18px;
 }
 
+.outro-title {
+    font-family: var(--font-handwriting);
+    font-size: 1.8rem;
+    color: var(--primary-color);
+    margin-bottom: 22px;
+}
+
 .back-home-btn {
     background: var(--primary-color);
     color: white;

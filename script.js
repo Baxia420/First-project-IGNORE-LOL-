@@ -79,61 +79,55 @@ const APP_CONFIG = {
             id: 1,
             title: "Get Out of an Argument",
             description: "Valid for one instant win during any disagreement. No questions asked!",
-            uses: "1",
-            badge: "🕊️"
+            uses: 1
         },
         {
             id: 2,
-            title: "Late Night Food Run",
-            description: "Good for one spontaneous 2 AM snack trip to wherever you want.",
-            uses: "Unlimited",
-            badge: "🍟"
+            title: "Mommy? Mommy???",
+            description: "For one whole round, you are fully in charge. Do whatever you feel like. Tie me up, bend me over...I will let you imagination run wild",
+            uses: 3
         },
         {
             id: 3,
             title: "Unlimited Warm Hugs",
-            description: "Redeemable anytime for a long, tight hug when you need it most.",
-            uses: "Infinity",
-            badge: "🤗"
+            description: "Because baby, you deserve all the hugs in the world. I love u",
+            uses: "Infinity"
         },
         {
             id: 4,
             title: "Movie Choice Night",
-            description: "You get total control of the remote and movie pick, plus popcorn!",
-            uses: "3",
-            badge: "🎬"
+            description: "You get total control of the remote and movie pick, plus popcorn! (Do you even like popcorn lol? I prefer caramel ones only)",
+            uses: 3
         },
         {
             id: 5,
             title: "Full Massage & Pamper",
-            description: "30 minutes of head, back, or foot massage to melt away stress.",
-            uses: "2",
-            badge: "💆"
+            description: "30 minutes of head, back, or foot massage to melt away stress. (or if you need anything else massaged..wink wink)",
+            uses: 2
         }
     ],
 
     // 5. Final Double-Page Letter
     finalLetter: {
-        salutation: "Dearest [Name],",
+        salutation: "Dearest Cici,",
         page1: [
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-            "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+            "Good morning my love. I hope you had a good sleep last night and did not lose too much sleep over me haha. Today, marks the 7th day we have known eachother. 7 days, is just a week. But this week, has been nothing short of a fairytale for me. My love for you only grows stronger and more each day. And, IK you feel the same way too, because I am your baby Mahin and baby Mahin is awesome. And yes I sometimes buy my confidence from shopeee. But now, I get my confidence from my Cici."
         ],
         page2: [
-            "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
+            "Cici, i do not know what to say here. What do I talk about that i have not said already? should I talk about how your eyes gleamed as they met mine. Or how you loved my terrible dad jokes so much from CMB that we are now together. Honestly, I find it very hard to believe that a woman i sent a dad joke to on a dating app on a Wednesday morning, ended up becoming the reason for my happiness, and my existance. It is quite interested is it not? Well, for one, I am glad you like dad jokes, otherwise who knows what i would do hahahahahaha.",
             "P.S. I love you more than words could ever describe."
         ],
-        signOff: "Yours forever and evermore,\n[Name]"
+        signOff: "Yours in all things, in aeternum and evermore,\nMahin"
     },
 
-    // 6. Outro Screen
+    // 6. Final Outro Screen
     finalOutro: {
+        title: "Forever & Evermore ♡",
         paragraphs: [
-            "Thank you for taking the time to explore this website. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-            "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
-            "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+            "And that, my baby, is everything I had to say. I'm sorry if it was not what you had expected. And maybe I should have just asked you out right on the fourth day because, well, four is my lucky number. And we did say I love you to each other on the fourth day of us knowing each other. But you know what seven is? Seven is 4 + 3. And that's our lucky number, the number seven, the day we lost our virginity to each other and the day we became official. I love you, my baby. I love you with the bottom of my heart, and forever and evermore.",
+            "(Also, can you give me a French kiss now, like, pleaseeeee? I am dying since the day we met to get a taste of you and IK you felt that kiss for days)"
         ],
-        buttonText: "Go back to start ♡"
+        restartBtn: "Experience Our Story Again ↺"
     }
 };
 
@@ -591,11 +585,13 @@ const APP_CONFIG = {
         // 3. Populate Final Outro Screen
         const outroBox = document.getElementById('final-letter-box');
         if (outroBox && APP_CONFIG.finalOutro) {
+            const title = APP_CONFIG.finalOutro.title ? `<h2 class="outro-title">${APP_CONFIG.finalOutro.title}</h2>` : '';
             const paragraphs = (APP_CONFIG.finalOutro.paragraphs || []).map(p => `<p>${p}</p>`).join('');
             outroBox.innerHTML = `
+                ${title}
                 ${paragraphs}
                 <button id="final-restart-btn" class="back-home-btn">
-                    ${APP_CONFIG.finalOutro.buttonText || 'Go back to start ♡'}
+                    ${APP_CONFIG.finalOutro.restartBtn || APP_CONFIG.finalOutro.buttonText || 'Go back to start ♡'}
                 </button>
             `;
 
